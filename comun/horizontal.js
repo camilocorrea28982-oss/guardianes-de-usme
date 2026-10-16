@@ -54,13 +54,24 @@
     try {
       if (!document.fullscreenElement) await raiz.requestFullscreen({ navigationUI: 'hide' });
       await screen.orientation.lock('landscape');
+      recordar();
     } catch (e) { /* el navegador no lo permite: queda el aviso */ }
+    esperandoToque = false;
+    actualizar();
   }
+
+  // Al cambiar de página (plataforma → mapa) el navegador suelta la pantalla completa y el
+  // bloqueo. Si ya se fijó una vez en esta pestaña, no se vuelve a pedir girar: el primer
+  // toque de la página nueva lo fija otra vez. El aviso sale solo si ese intento falla.
+  const RECUERDO = 'gu-horizontal-fijado';
+  function recordar() { try { sessionStorage.setItem(RECUERDO, '1'); } catch (e) {} }
+  function yaFijado() { try { return sessionStorage.getItem(RECUERDO) === '1'; } catch (e) { return false; } }
+  let esperandoToque = puedeFijar && yaFijado();
 
   // Mientras el aviso está, el resto de la página no recibe foco ni lector de pantalla.
   let apagados = [];
   function actualizar() {
-    const girar = vertical.matches;
+    const girar = vertical.matches && !esperandoToque;
     if (girar === raiz.classList.contains('gu-girar')) return;
     raiz.classList.toggle('gu-girar', girar);
     if (girar) {

@@ -180,7 +180,32 @@
       </label>`).join('');
   }
 
+  // Si el mundo trae al jugador de la plataforma (nombre y avatar ya hechos en «Crea tu avatar»),
+  // solo se saluda: el toque en «¡Empezar!» hace falta para que el navegador deje sonar la voz.
+  function mostrarSaludo() {
+    const p = $('#gu-inicio');
+    p.innerHTML = `
+      <div class="gu-inicio-caja">
+        <p class="gu-sobretitulo">${esc(mundo.nombre)}</p>
+        <h1 id="gu-inicio-titulo">¡Hola, ${esc(cfg.nombre)}!</h1>
+        <p class="gu-intro">Camina por el Parque Arqueológico, conoce a sus guardianes y descubre la memoria del territorio.</p>
+        <div class="gu-botones-inicio">
+          <div style="display:flex; flex-wrap:wrap; gap:10px">
+            ${mundo.editarAvatar ? `<a class="gu-btn gu-btn-secundario" style="text-decoration:none" href="${esc(mundo.editarAvatar)}"><span aria-hidden="true">🎨</span> Cambiar mi avatar</a>` : ''}
+            <button type="button" class="gu-btn gu-btn-secundario" data-local="opciones"><span aria-hidden="true">⚙️</span> Opciones: edad, voz, controles…</button>
+          </div>
+          <button type="button" class="gu-btn gu-btn-grande gu-btn-principal" data-local="empezar"><span aria-hidden="true">🌄</span> ¡Empezar!</button>
+        </div>
+        <p class="gu-nota-validar">Prototipo. Los textos están por validar con sabedores, la comunidad y el equipo del parque.</p>
+      </div>`;
+    p.hidden = false;
+    $('[data-local="opciones"]', p).addEventListener('click', abrirOpciones);
+    $('[data-local="empezar"]', p).addEventListener('click', () => { guardar(); empezar(); });
+    setTimeout(() => $('[data-local="empezar"]', p)?.focus({ preventScroll: true }), 50);
+  }
+
   function mostrarInicio() {
+    if (mundo.jugador) { mostrarSaludo(); return; }
     const p = $('#gu-inicio');
     p.innerHTML = `
       <div class="gu-inicio-caja">
@@ -519,6 +544,29 @@
         </div>
         ${cfg.senas ? `<div class="gu-senas" role="img" aria-label="Espacio para video en Lengua de Señas Colombiana"><span aria-hidden="true">🤟</span><small>Video en Lengua de Señas Colombiana<br>(por grabar con intérprete)</small></div>` : ''}`;
 
+      // Avance solo: cuando la voz termina una línea, se esperan 2 s y se pasa a la siguiente
+      // (o a la pregunta). Un toque en el diálogo durante la espera la cancela. Sin voz no avanza
+      // solo: quien lee a su ritmo decide cuándo seguir.
+      const ESPERA_AVANCE = 2000;
+      let avance = null;
+      const cancelarAvance = () => { clearTimeout(avance); avance = null; };
+      const narrar = texto => {
+        cancelarAvance();
+        const t0 = performance.now();
+        V.decir(texto, () => {
+          // si la voz «terminó» al instante, no sonó (sin voces, bloqueada): no avanza solo
+          if (!cfg.voz || !V.disponible || performance.now() - t0 < 400) return;
+          const intentar = () => {
+            if (d.hidden || $('.gu-pregunta', d)) return;
+            // con un panel abierto o el celular en vertical se espera
+            if (estado.panel || document.documentElement.classList.contains('gu-girar')) { avance = setTimeout(intentar, 1000); return; }
+            if (linea < lineas.length - 1) { linea++; verLinea(); }
+            else if (!repetida) verPregunta();
+          };
+          avance = setTimeout(intentar, ESPERA_AVANCE);
+        });
+      };
+
       const verLinea = () => {
         d.innerHTML = `${cabecera}
           <p class="gu-texto" aria-live="polite">${esc(lineas[linea])}</p>
@@ -531,10 +579,11 @@
         d.hidden = false;
         if (cfg.control !== 'barrido') $('[data-d="sig"]', d).focus({ preventScroll: true });
         const pre = linea === 0 && cfg.audiodescripcion ? est.escena + ' ' : '';
-        V.decir(pre + lineas[linea]);
+        narrar(pre + lineas[linea]);
       };
 
       const verPregunta = () => {
+        cancelarAvance();
         const q = txt.pregunta;
         let intentos = 0;
         const orden = q.opciones.map((o, k) => ({ ...o, k })).sort(() => Math.random() - 0.5);
@@ -595,6 +644,7 @@
       };
 
       const cerrar = () => {
+        cancelarAvance();
         V.callar();
         d.hidden = true;
         d.innerHTML = '';
@@ -610,10 +660,11 @@
       };
 
       d.onclick = e => {
+        cancelarAvance();
         const b = e.target.closest('[data-d]');
         if (!b) return;
         const a = b.dataset.d;
-        if (a === 'repetir' && $('.gu-pregunta', d) == null) V.decir(lineas[linea]);
+        if (a === 'repetir' && $('.gu-pregunta', d) == null) narrar(lineas[linea]);
         else if (a === 'atras') { linea--; verLinea(); }
         else if (a === 'sig') {
           if (linea < lineas.length - 1) { linea++; verLinea(); }

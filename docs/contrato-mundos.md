@@ -45,6 +45,7 @@ la plataforma (`index.html`) y el mapa. Los estilos compactos para poca altura v
 | Llamada | Para qué |
 |---|---|
 | `GU.montar({ nombre })` | Se llama una vez al cargar. Muestra la pantalla de inicio. |
+| `GU.montar({ nombre, jugador: true, editarAvatar })` | Si el jugador ya viene de la plataforma (nombre y avatar hechos en «Crea tu avatar»): en vez del formulario, solo un saludo con «¡Empezar!», «Cambiar mi avatar» (enlace `editarAvatar`) y Opciones. |
 | `GU.on('empezar', cfg => …)` | El niño tocó «¡Empezar!». Arranca el mundo con `cfg`. |
 | `GU.on('config', cfg => …)` | Cambió una opción (p. ej. `cfg.reducirMovimiento`, `cfg.contraste`). |
 | `GU.on('avanzar', i => …)` | Modo guiado/pulsador o botón «Llévame»: caminar **solo** hasta la estación `i` y, al llegar, llamar `GU.llegar(i)`. |

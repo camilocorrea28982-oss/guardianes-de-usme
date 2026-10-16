@@ -46,6 +46,8 @@
   // Trae el nickname y el avatar del editor; al terminar, guarda la partida y el diploma.
   const DATOS = window.GU_DATOS || null;
   const perfil = DATOS ? DATOS.jugadorActual() : null;
+  // El nombre y el avatar se hacen solo en la plataforma («Crea tu avatar»): sin jugador, se va allá.
+  if (DATOS && !perfil) { location.replace('../index.html#jugador'); return; }
   let preset = null;
   if (perfil) {
     const ap = perfil.apariencia || {};
@@ -971,7 +973,9 @@
     if (perfil) DATOS.registrarPartida('ancestros', { puntos: d.puntos, maximo: d.maximo, diploma: true, semillas: GU.estado.semillas.size, nivel: GU.config.nivel, minijuegos: resultadosMinijuegos }).catch(() => {});
   });
 
-  GU.montar({ nombre: 'Mapa desde arriba' });
+  GU.montar(perfil
+    ? { nombre: 'Mapa desde arriba', jugador: true, editarAvatar: '../index.html#avatar' }
+    : { nombre: 'Mapa desde arriba' });
 
   // Se espera un momento a la fuente de los letreros (si no hay internet, se usa la del sistema).
   const fuente = document.fonts && document.fonts.load ? document.fonts.load('800 23px "Baloo 2"').catch(() => {}) : Promise.resolve();
