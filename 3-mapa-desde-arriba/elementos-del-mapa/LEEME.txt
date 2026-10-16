@@ -1,0 +1,32 @@
+Elementos del mapa · «Recorriendo los pasos de los ancestros» (prototipo 3, mapa desde arriba)
+Exportado el 8 de octubre de 2026 desde el juego tal como está hoy.
+
+Todas las imágenes son PNG sin fondo (transparentes), salvo el mapa completo, el mapa base y el fondo de pasto.
+Las figuras salen al doble de resolución que en el juego. Hay una imagen por tipo de elemento; las variantes
+(otras formas del mismo árbol, otros colores de flor, de vasija o de roca) no se repiten.
+
+00-mapa-completo   El mapa actual tal como se ve en el juego (3200 × 3000), con nubes, personajes y letreros.
+01-suelo           Lo que en el juego va pintado en el piso:
+                   mapa-base (todo el suelo, sin árboles, casas ni personajes), fondo-pasto (solo el pasto y
+                   los colores de cada zona), camino, río Tunjuelo, quebrada, laguna, montañas del Sumapaz,
+                   puente, una parcela de la huerta, un tramo de cerca, la explanada de los ancestros y el
+                   círculo del sol, potreros y patio de la casa, un claro de estación y la rosa de los vientos.
+02-vegetacion      Aliso, árbol de bosque, encenillo, gaque, árbol grande, arbusto, frailejón (con y sin flor),
+                   pajonal, hierba, junco, helecho, flor, maíz y papa.
+03-construcciones-y-objetos   Casa, roca, piedra parada, vasija y piedra del sol.
+04-animales-del-potrero       Vaca y oveja.
+05-personajes      Doña Rosa, Tita (tingua), Julián (arqueólogo), Rita (rana), Cuqui (curí) y Tomás (oso).
+06-avatar          Niña, niño y silla de ruedas, de frente y con la ruana roja de siempre.
+07-estaciones      Los 6 letreros y las 6 semillas (cada uno es distinto), el marcador y el anillo.
+08-cielo           Nube, pájaro y niebla.
+
+Para la propuesta: arma el mapa nuevo con estas piezas, o dibújalo encima del mapa completo, y pásalo de vuelta.
+
+mapa-por-capas.svg   El mapa actual completo para abrir en Figma (arrastrarlo a un archivo), 3200 × 3000.
+                   Capas: 1-suelo (fondo, montañas, río, quebrada, laguna, huerta, camino, puente, cercas,
+                   claros, rosa y marco), 2-estaciones-piso, 3-vegetacion (hierba y flores / cultivos /
+                   plantas y árboles), 4-construcciones-y-objetos, 5-animales-del-potrero, 6-personajes,
+                   7-estaciones (letreros, semillas, marcador) y 8-cielo.
+                   El río, la quebrada y el camino son líneas vectoriales: para cambiar su recorrido basta
+                   con mover la línea «…-TRAZADO-editable»; las demás franjas de esa capa las rehago yo.
+                   Al devolverlo: exportar el marco como SVG con «Include "id" attribute».

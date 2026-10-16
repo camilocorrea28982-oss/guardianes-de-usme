@@ -1,0 +1,39 @@
+/* Recursos imprimibles (fichas y cuento). Se guardan en PDF desde la ventana de impresión. */
+:root { --tinta: #2b2118; --suave: #6b5a48; --borde: #e3d6bd; --tierra: #c0562f; --papel: #fffdf7; --fondo: #efe6d2; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--fondo); color: var(--tinta); font: 16px/1.5 'Atkinson Hyperlegible', system-ui, 'Segoe UI', sans-serif; }
+h1, h2, h3 { font-family: 'Baloo 2', 'Atkinson Hyperlegible', system-ui, sans-serif; line-height: 1.1; margin: 0 0 .3em; }
+.herramientas { position: sticky; top: 0; z-index: 3; background: #2b2118; color: #fff; padding: 10px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.herramientas p { margin: 0; flex: 1; min-width: 220px; font-size: .95rem; }
+.herramientas button, .herramientas a { font: inherit; font-weight: 700; border-radius: 999px; padding: .5em 1.1em; min-height: 48px; border: 3px solid #fff; background: var(--tierra); color: #fff; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+.herramientas a { background: transparent; }
+:focus-visible { outline: 4px solid #1f6fd1; outline-offset: 3px; }
+.hojas { max-width: 900px; margin: 0 auto; padding: 20px 16px 60px; display: grid; gap: 20px; }
+.hoja { background: var(--papel); border-radius: 18px; box-shadow: 0 6px 22px rgba(43,33,24,.15); padding: 28px; border: 8px solid var(--c, var(--tierra)); position: relative; }
+.borrador { position: absolute; top: 12px; right: 16px; font-size: .75rem; font-weight: 700; color: #a33a2a; text-transform: uppercase; letter-spacing: .06em; }
+.ficha { display: grid; grid-template-columns: 260px 1fr; gap: 22px; align-items: start; }
+.ficha .dibujo { aspect-ratio: 1; display: grid; place-items: center; background: radial-gradient(circle at 50% 65%, color-mix(in srgb, var(--c) 22%, #fff) 0 60%, transparent 61%); border-radius: 16px; text-align: center; }
+.ficha canvas { width: 100%; max-width: 240px; aspect-ratio: 1; }
+.ficha h2 { font-size: 2rem; margin: 0; }
+.cientifico { font-style: italic; color: var(--suave); margin: 0 0 10px; }
+.datos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0; }
+.datos div { border: 2px solid var(--borde); border-radius: 12px; padding: 8px 10px; }
+.datos dt { font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; color: var(--suave); font-weight: 700; }
+.datos dd { margin: 2px 0 0; }
+.cuida { margin-top: 12px; background: color-mix(in srgb, var(--c) 12%, #fff); border-radius: 12px; padding: 10px 14px; }
+.portada-recurso { text-align: center; }
+.portada-recurso canvas { width: 100%; max-width: 560px; }
+.pagina-cuento { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: center; min-height: 420px; }
+.pagina-cuento canvas { width: 100%; max-width: 360px; aspect-ratio: 1; justify-self: center; }
+.pagina-cuento p { font-size: 1.25rem; margin: 0 0 12px; }
+.pagina-cuento .num { color: var(--suave); font-size: .85rem; }
+@media (max-width: 680px) { .ficha, .pagina-cuento { grid-template-columns: 1fr; } .datos { grid-template-columns: 1fr; } }
+@page { size: A4; margin: 12mm; }
+@media print {
+  body { background: #fff; }
+  .herramientas { display: none; }
+  .hojas { padding: 0; max-width: none; gap: 0; }
+  .hoja { box-shadow: none; break-after: page; page-break-after: always; border-radius: 10px; min-height: 260mm; }
+  .hoja:last-child { break-after: auto; page-break-after: auto; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

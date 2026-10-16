@@ -1,0 +1,8 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prueba capa común</title><link rel="stylesheet" href="../comun/estilos.css"></head><body>
+<main id="mundo"><canvas id="c"></canvas></main>
+<script src="../comun/contenido.js"></script><script src="../comun/audio.js"></script><script src="../comun/voz.js"></script><script src="../comun/juego.js"></script>
+<script>
+GU.montar({nombre:'Prueba'});
+GU.on('avanzar', i => { GU.zona(i); GU.llegar(i); });
+</script></body></html>

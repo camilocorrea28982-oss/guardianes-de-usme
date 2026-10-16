@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plan del proyecto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Baloo+2:wght@600;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<style>
+  :root {
+    --fondo: #fbf6ea; --panel: #fffdf7; --tinta: #2b2118; --suave: #6b5a48; --borde: #e3d6bd;
+    --tierra: #c0562f; --agua: #3d6f8f; --bosque: #3c7a45; --paramo: #9aa86a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --fondo: #1d1813; --panel: #27211a; --tinta: #f3eadb; --suave: #c4b39b; --borde: #4a3f33; --tierra: #e27a50; --agua: #79acd0; --bosque: #79b884; }
+  }
+  :root[data-theme="dark"] { --fondo: #1d1813; --panel: #27211a; --tinta: #f3eadb; --suave: #c4b39b; --borde: #4a3f33; --tierra: #e27a50; --agua: #79acd0; --bosque: #79b884; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fondo); color: var(--tinta); font: 17px/1.55 'Atkinson Hyperlegible', system-ui, sans-serif; }
+  main { max-width: 1080px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1, h2, h3 { font-family: 'Baloo 2', system-ui, sans-serif; line-height: 1.1; }
+  h1 { font-size: clamp(2.2rem, 6vw, 3.4rem); margin: 0; }
+  h2 { font-size: 1.8rem; margin: 52px 0 12px; }
+  h3 { font-size: 1.25rem; margin: 0 0 6px; }
+  .sobre { text-transform: uppercase; letter-spacing: .12em; font-weight: 700; color: var(--tierra); font-size: .8rem; margin: 0; }
+  .intro { font-size: 1.15rem; color: var(--suave); max-width: 760px; }
+  .aviso { border-left: 5px solid var(--tierra); background: var(--panel); padding: 12px 16px; border-radius: 0 12px 12px 0; }
+  .aviso.verde { border-color: var(--bosque); }
+  .protos { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 18px; margin-top: 18px; }
+  .proto { background: var(--panel); border: 2px solid var(--borde); border-radius: 22px; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+  .proto.elegido { border: 4px solid var(--bosque); }
+  .proto.atras { opacity: .72; }
+  .proto .icono { font-size: 2.6rem; line-height: 1; }
+  .proto p { margin: 0; color: var(--suave); }
+  .proto ul { margin: 0; padding-left: 1.1em; font-size: .95rem; }
+  .etiq { display: inline-block; font-size: .78rem; font-weight: 700; padding: .15em .7em; border-radius: 999px; background: color-mix(in srgb, var(--c) 18%, transparent); color: var(--c); margin-right: 4px; }
+  .jugar { margin-top: auto; display: inline-flex; justify-content: center; align-items: center; gap: .4em; min-height: 56px; padding: .6em 1.2em; border-radius: 999px; background: var(--tierra); color: #fff; font-weight: 700; text-decoration: none; font-size: 1.1rem; }
+  .jugar.sec { background: transparent; color: var(--tinta); border: 2px solid var(--borde); }
+  .jugar:focus-visible { outline: 4px solid var(--agua); outline-offset: 3px; }
+  .tabla { overflow-x: auto; border: 2px solid var(--borde); border-radius: 16px; background: var(--panel); margin: 12px 0; }
+  table { border-collapse: collapse; width: 100%; min-width: 760px; font-size: .95rem; }
+  caption { text-align: left; padding: 10px 12px; font-weight: 700; }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--borde); vertical-align: top; }
+  th { font-size: .82rem; text-transform: uppercase; letter-spacing: .06em; color: var(--suave); }
+  tr:last-child td { border-bottom: 0; }
+  .si { color: var(--bosque); font-weight: 700; }
+  .no { color: var(--tierra); font-weight: 700; }
+  .rejilla { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+  .caja { background: var(--panel); border: 2px solid var(--borde); border-radius: 16px; padding: 16px; }
+  .caja p, .caja ul { margin: 0; }
+  .caja p + ul, .caja ul + p { margin-top: 8px; }
+  .caja ul { padding-left: 1.1em; }
+  .fases { counter-reset: f; list-style: none; padding: 0; display: grid; gap: 12px; }
+  .fases li { counter-increment: f; background: var(--panel); border: 2px solid var(--borde); border-radius: 16px; padding: 14px 16px 14px 64px; position: relative; }
+  .fases li::before { content: counter(f); position: absolute; left: 16px; top: 14px; width: 34px; height: 34px; border-radius: 50%; background: var(--tierra); color: #fff; display: grid; place-items: center; font-weight: 700; }
+  .arq { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; align-items: stretch; }
+  .arq .caja { border-width: 3px; }
+  .arq .caja h3 small { display: block; font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-weight: 400; font-size: .85rem; color: var(--suave); margin-top: 2px; }
+  .total { font-size: 1.3rem; font-weight: 700; }
+  .total b { font-size: 2rem; color: var(--bosque); }
+  code { background: color-mix(in srgb, var(--borde) 50%, transparent); padding: .05em .35em; border-radius: 6px; font-size: .9em; }
+  details { background: var(--panel); border: 2px solid var(--borde); border-radius: 16px; padding: 12px 16px; margin: 10px 0; }
+  summary { cursor: pointer; font-weight: 700; }
+  footer { margin-top: 48px; color: var(--suave); font-size: .9rem; }
+  footer a { color: inherit; }
+</style>
+</head>
+<body>
+<main>
+  <p><a class="jugar sec" href="index.html" style="min-height:44px;font-size:1rem">← Volver a la plataforma</a></p>
+  <p class="sobre">Parque Arqueológico y patrimonio de Usme · Fase 2</p>
+  <h1>Guardianes de Usme · plan del proyecto</h1>
+  <p class="intro">Una plataforma de juegos web para que niñas y niños de 6 a 12 años recorran el territorio, conversen con sus guardianes y aprendan del patrimonio muisca, el agua, el bosque, la huerta y el páramo. Las y los docentes y talleristas acompañan desde su propio panel.</p>
+  <p class="aviso verde"><b>Decisión tomada: seguimos con el prototipo 3, «Mapa desde arriba».</b> Es el primer juego de la plataforma, se llama <b>«Recorriendo los pasos de los ancestros»</b>, y sobre él se construye todo lo de este documento. Todo el contenido sigue <b>por validar</b> con sabedores, la Mesa y el Semillero Usmeka, el equipo del parque y docentes.</p>
+
+  <h2>Los prototipos</h2>
+  <div class="protos">
+    <article class="proto elegido">
+      <div class="icono" aria-hidden="true">🗺️</div>
+      <h3>3. Mapa desde arriba · elegido</h3>
+      <p>El parque como un mapa ilustrado: caminas libre o tocas un punto y tu personaje va solo por el camino.</p>
+      <div><span class="etiq" style="--c:var(--bosque)">Phaser</span><span class="etiq" style="--c:var(--tierra)">Ideal para proyectar</span></div>
+      <ul>
+        <li>«Ver todo el mapa» muestra el recorrido completo al grupo.</li>
+        <li>Tocar para caminar: muy cómodo en tableta y en tablero interactivo.</li>
+        <li>Se parece al mapa real del parque: sirve antes y después de la visita.</li>
+      </ul>
+      <a class="jugar" href="index.html">Abrir la plataforma <span aria-hidden="true">▶</span></a>
+    </article>
+    <article class="proto atras">
+      <div class="icono" aria-hidden="true">🧭</div>
+      <h3>1. Recorrido 3D</h3>
+      <p>Se queda como referencia. Más inmersivo, pero pesa más y el arte final exige modelado 3D.</p>
+      <a class="jugar sec" href="1-recorrido-3d/index.html">Ver prototipo</a>
+    </article>
+    <article class="proto atras">
+      <div class="icono" aria-hidden="true">📖</div>
+      <h3>2. Cuento de lado</h3>
+      <p>Se queda como referencia. Su estilo de libro ilustrado puede servir para el cuento descargable.</p>
+      <a class="jugar sec" href="2-cuento-de-lado/index.html">Ver prototipo</a>
+    </article>
+  </div>
+
+  <h2>Qué se agrega</h2>
+  <p class="aviso verde"><b>Ya se puede probar en la plataforma</b> (<a href="index.html">index.html</a>): página principal con el catálogo, entrada de jugador con nickname y código de grupo, editor de avatar, perfil con puntos y diplomas, cuentas de profe con nickname y contraseña, panel con jugadores, recursos descargables (fichas de fauna y plantas y el cuento en PDF) y evidencias de clase. Por ahora los datos se guardan en el navegador de cada equipo; con Supabase se verán desde cualquier equipo. Dentro del juego ya están los dos minijuegos: <b>la excavación</b> con Julián y <b>los binoculares</b> con Rita.</p>
+  <div class="rejilla">
+    <div class="caja"><h3>🏠 Página principal</h3><ul>
+      <li>Catálogo de juegos. El primero es «Recorriendo los pasos de los ancestros»; los siguientes se suman como tarjetas nuevas.</li>
+      <li>Botón <b>«Soy jugador»</b>: solo pide un nickname, sin contraseña.</li>
+      <li>Botón <b>«Soy profe o tallerista»</b>: crear cuenta o entrar con nickname y contraseña.</li></ul></div>
+    <div class="caja"><h3>🧒 Jugador</h3><ul>
+      <li>Entra con su nickname. Al crearlo, o después, puede quedar a cargo de un profe o tallerista.</li>
+      <li>Editor de avatar: género, tipo y color de cabello, ruana, pantalón y zapatos (y la silla de ruedas como opción de movilidad, aparte del género).</li>
+      <li>Su progreso, puntos, diplomas y avatar quedan guardados.</li></ul></div>
+    <div class="caja"><h3>🧑‍🏫 Profe o tallerista</h3><ul>
+      <li>Descarga los recursos de cada juego: fichas de fauna y de plantas del altiplano cundiboyacense y el cuento del recorrido en PDF.</li>
+      <li>Ve a sus jugadores: puntos por juego, diplomas y avatares.</li>
+      <li>Sube evidencias de actividades hechas en clase y las relaciona con cada jugador.</li></ul></div>
+    <div class="caja"><h3>⛏️ Minijuego: la excavación</h3>
+      <p>En «El lugar de los ancestros», con Julián. El jugador limpia la tierra con la brocha por capas y aparecen vasijas, herramientas y huellas del pasado; cada hallazgo se registra en una libreta de campo. Termina con una reflexión: los restos no se sacan ni se venden, se cuidan donde están, porque es un lugar sagrado.</p>
+      <ul><li>Cómo mostrar los restos humanos se decide con la comunidad y el equipo del parque.</li></ul></div>
+    <div class="caja"><h3>🔭 Minijuego: los binoculares</h3>
+      <p>Donde Rita, la rana. Una imagen ancha muestra el contraste entre la ciudad y el campo. Con unos binoculares (un círculo que se mueve con el dedo o el mouse) se buscan problemas: basura, fábricas que contaminan, carros, el río sucio, la tala, los animales nativos desplazados. Cada problema encontrado explica su impacto y qué podemos hacer.</p>
+      <ul><li>Versión accesible: con teclado o pulsador se pasa de un lugar a otro y cada uno se describe en voz.</li></ul></div>
+    <div class="caja"><h3>📚 Recursos pedagógicos</h3><ul>
+      <li>Especies candidatas (por validar con biólogos): tingua bogotana, cucarachero de pantano, rana sabanera, curí, oso de anteojos; frailejón, encenillo, gaque, aliso, mortiño.</li>
+      <li>Se diseñan una vez como PDF (ilustración y diagramación) y se publican junto al juego.</li></ul></div>
+  </div>
+
+  <h2>Cómo se arma, en una imagen</h2>
+  <p>Tres piezas, todas con plan gratuito. El juego sigue siendo una página web; lo nuevo es un servicio que guarda cuentas, puntos y archivos.</p>
+  <div class="arq">
+    <div class="caja"><h3>1. La página y los juegos<small>Cloudflare Pages (o GitHub Pages)</small></h3><ul>
+      <li>HTML, CSS y JavaScript con Phaser, como el prototipo.</li>
+      <li>Los PDF de fichas y del cuento van aquí, como archivos.</li>
+      <li>Aplicación web instalable (PWA) para jugar sin señal en el parque.</li></ul></div>
+    <div class="caja"><h3>2. Cuentas y datos<small>Supabase (base de datos Postgres + autenticación)</small></h3><ul>
+      <li>Profes y talleristas, jugadores, a quién tiene a cargo cada profe, puntos, diplomas y avatares.</li>
+      <li>Reglas de seguridad en la base de datos: cada profe solo ve a sus jugadores.</li></ul></div>
+    <div class="caja"><h3>3. Archivos subidos<small>Supabase Storage (o Cloudflare R2 si crece)</small></h3><ul>
+      <li>Fotos y documentos de actividades de clase.</li>
+      <li>Privados: solo los ve el profe que los subió.</li></ul></div>
+  </div>
+
+  <h2>¿Necesito base de datos?</h2>
+  <p><b>Sí.</b> Mientras todo estaba en el navegador del niño no hacía falta, pero ahora un profe tiene que ver desde su equipo los resultados que el niño ganó en otro, y eso exige guardar los datos en un servidor. Con estas tablas alcanza para empezar:</p>
+  <div class="tabla">
+    <table>
+      <caption>Tablas de la base de datos</caption>
+      <thead><tr><th>Tabla</th><th>Qué guarda</th><th>Quién la ve</th></tr></thead>
+      <tbody>
+        <tr><td><code>juegos</code></td><td>Catálogo: nombre, descripción, si está activo.</td><td>Todos</td></tr>
+        <tr><td><code>profes</code></td><td>Nickname, nombre visible, institución (opcional). La contraseña la guarda el servicio de autenticación, cifrada.</td><td>El mismo profe</td></tr>
+        <tr><td><code>grupos</code></td><td>Curso o taller de un profe, con un <b>código de grupo</b> corto (p. ej. <code>USME-4B</code>).</td><td>El profe dueño</td></tr>
+        <tr><td><code>jugadores</code></td><td>Nickname, avatar (género, cabello, colores, ruana, pantalón, zapatos, silla) y grupo al que pertenece.</td><td>El jugador y su profe</td></tr>
+        <tr><td><code>partidas</code></td><td>Por jugador y juego: estrellas por estación, semillas, minijuegos, fecha.</td><td>El jugador y su profe</td></tr>
+        <tr><td><code>diplomas</code></td><td>Diploma ganado por juego, con fecha y puntaje.</td><td>El jugador y su profe</td></tr>
+        <tr><td><code>recursos</code></td><td>Material descargable de cada juego (fichas, cuento).</td><td>Profes</td></tr>
+        <tr><td><code>evidencias</code></td><td>Archivo subido por el profe, descripción, fecha y los jugadores relacionados.</td><td>El profe dueño</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Dónde publicar gratis</h2>
+  <div class="tabla">
+    <table>
+      <caption>Opciones para publicar la página y los datos</caption>
+      <thead><tr><th>Servicio</th><th>Para qué</th><th>Plan gratuito</th><th>Lo malo</th><th>Veredicto</th></tr></thead>
+      <tbody>
+        <tr><td><b>Cloudflare Pages</b></td><td>La página y los juegos</td><td>Gratis, tráfico sin límite práctico, se publica desde GitHub</td><td>—</td><td class="si">Recomendado</td></tr>
+        <tr><td>GitHub Pages</td><td>La página y los juegos</td><td>Gratis, ~100 GB de tráfico al mes</td><td>Repositorio público en el plan gratis</td><td class="si">Alternativa sencilla</td></tr>
+        <tr><td>Netlify</td><td>La página y los juegos</td><td>Gratis con cupo mensual de tráfico</td><td>Si se pasa del cupo, se detiene el sitio</td><td>Sirve</td></tr>
+        <tr><td><b>Render · sitio estático</b></td><td>La página y los juegos</td><td>Gratis</td><td>Cuenta contra el tráfico y los minutos de compilación del mes</td><td>Sirve</td></tr>
+        <tr><td>Render · servicio web gratis</td><td>Un servidor propio (API)</td><td>750 horas al mes</td><td class="no">Se apaga tras 15 min sin uso y tarda ~1 min en despertar: el niño ve la pantalla congelada</td><td class="no">No para esto</td></tr>
+        <tr><td>Render · Postgres gratis</td><td>Base de datos</td><td>1 GB</td><td class="no">Vence a los 30 días de creada (14 días de gracia y se borra)</td><td class="no">No: perderías los datos</td></tr>
+        <tr><td><b>Supabase Free</b></td><td>Base de datos, cuentas y archivos</td><td>500 MB de base de datos, 1 GB de archivos, 50.000 usuarios activos al mes, 2 proyectos</td><td>Se pausa si pasa 7 días sin uso (se evita con una visita automática semanal)</td><td class="si">Recomendado</td></tr>
+        <tr><td>Firebase (plan Spark)</td><td>Base de datos y cuentas</td><td>Base de datos y autenticación gratis con cupos</td><td>Para subir archivos ahora exige el plan de pago por uso con tarjeta</td><td>Alternativa</td></tr>
+        <tr><td>AWS (la cuenta de Tejidos)</td><td>Todo</td><td>Casi gratis a este tamaño, pero no gratis</td><td>Más configuración; comparte cupos con Tejidos</td><td>Solo si se quiere todo junto</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="total">Costo con la opción recomendada: <b>$0</b> al mes.</p>
+  <p>Lo único que podría costar es un dominio propio (por ejemplo <code>guardianesdeusme.co</code>), unos $60.000 a $120.000 al año. Es opcional: el sitio funciona gratis en una dirección como <code>guardianes-usme.pages.dev</code>.</p>
+  <details>
+    <summary>¿Por qué no Render para todo?</summary>
+    <p>Render sirve bien para publicar la página (sitio estático gratis), pero su base de datos gratuita se borra al mes y su servidor gratuito se duerme. Para un juego de colegio, donde los datos de los niños deben quedar guardados todo el año, Supabase es la opción gratuita estable. Si prefieres Render, úsalo solo para la página y deja los datos en Supabase.</p>
+  </details>
+  <details>
+    <summary>¿Cuándo tocaría pagar?</summary>
+    <ul>
+      <li>Si los archivos subidos pasan de 1 GB: se reducen las fotos antes de subirlas, o se mueven a Cloudflare R2 (10 GB gratis).</li>
+      <li>Si se quiere respaldo diario automático y que el proyecto nunca se pause: Supabase Pro, 25 dólares al mes. Para empezar no hace falta; se puede exportar la base de datos a mano cada mes.</li>
+      <li>500 MB de base de datos alcanzan para decenas de miles de jugadores: cada partida ocupa muy poco.</li>
+    </ul>
+  </details>
+
+  <h2>Cómo entra cada quien</h2>
+  <div class="rejilla">
+    <div class="caja"><h3>🧒 Jugador: solo nickname</h3><ul>
+      <li>Se usa un «ingreso anónimo» del servicio de cuentas: el navegador queda recordado y el niño solo escribe su nickname.</li>
+      <li>Recomendado: el profe entrega un <b>código de grupo</b>. Con el código, el nickname queda ligado a ese profe, y dos niños de colegios distintos pueden usar el mismo nickname sin chocar.</li>
+      <li>Si cambia de equipo, entra con el mismo código y nickname y recupera su progreso. Sin código, juega igual, pero el progreso queda solo en ese equipo.</li></ul></div>
+    <div class="caja"><h3>🧑‍🏫 Profe: nickname y contraseña</h3><ul>
+      <li>El servicio de cuentas pide correo; por dentro se usa uno interno a partir del nickname, y la persona solo ve nickname y contraseña.</li>
+      <li>Para recuperar la contraseña conviene pedir un correo opcional; si no hay correo, otro administrador la reinicia.</li></ul></div>
+    <div class="caja"><h3>🔒 Datos de niñas y niños</h3><ul>
+      <li>En Colombia aplica la Ley 1581 de 2012 de protección de datos y sus decretos: los datos de menores necesitan autorización de su acudiente y una política de tratamiento publicada.</li>
+      <li>Pedir lo mínimo: nickname, sin nombre completo, sin foto, sin documento.</li>
+      <li>Las evidencias de clase con fotos de niños necesitan autorización escrita de los acudientes; mejor subir fotos de trabajos que de caras.</li></ul></div>
+  </div>
+
+  <h2>Qué necesitas</h2>
+  <div class="rejilla">
+    <div class="caja"><h3>Cuentas (todas gratis)</h3><ul>
+      <li>GitHub: para guardar el código y publicar.</li>
+      <li>Cloudflare: para la página.</li>
+      <li>Supabase: para cuentas, datos y archivos.</li>
+      <li>Opcional: un dominio .co.</li></ul></div>
+    <div class="caja"><h3>Contenido</h3><ul>
+      <li>Fichas de fauna y plantas: textos validados por biólogos e ilustraciones.</li>
+      <li>El cuento del recorrido: texto, ilustración y diagramación en PDF.</li>
+      <li>Imagen de ciudad y campo para los binoculares y objetos para la excavación.</li>
+      <li>Validación con sabedores, el Semillero Usmeka y el equipo del parque.</li></ul></div>
+    <div class="caja"><h3>Desarrollo</h3><ul>
+      <li>Phaser (ya lo usa el prototipo) y la librería oficial de Supabase para JavaScript.</li>
+      <li>Sin servidor propio que mantener: la seguridad vive en las reglas de la base de datos.</li>
+      <li>Una política de privacidad y un formato de autorización para acudientes.</li></ul></div>
+  </div>
+
+  <h2>Por dónde seguir</h2>
+  <ol class="fases">
+    <li><b>Página principal y editor de avatar</b>, sin cuentas todavía: catálogo de juegos, «Soy jugador» con nickname y el editor (género, cabello, colores, ruana, pantalón, zapatos). Todo se guarda en el navegador.</li>
+    <li><b>Los dos minijuegos</b> dentro del mapa: la excavación con Julián y los binoculares con Rita, con su versión accesible por teclado, pulsador y voz.</li>
+    <li><b>Cuentas y base de datos</b> en Supabase: registro e ingreso de profes, grupos con código, jugadores ligados, puntos y diplomas guardados.</li>
+    <li><b>Panel del profe</b>: lista de jugadores, puntos por juego, diplomas y avatares; descarga de recursos; evidencias de clase relacionadas con cada jugador.</li>
+    <li><b>Recursos pedagógicos</b>: fichas y cuento en PDF, diseñados y validados.</li>
+    <li><b>Publicación</b> en Cloudflare Pages, prueba con un curso de Usme y ajustes. Luego, nuevos juegos en el catálogo.</li>
+  </ol>
+
+  <footer>
+    <p>Estructura actual: <code>comun/</code> (contenido, voz, sonido, accesibilidad, puntaje) · <code>3-mapa-desde-arriba/</code> (el juego elegido) · <code>1-recorrido-3d/</code> y <code>2-cuento-de-lado/</code> (referencia) · <code>vendor/</code> (librerías descargadas) · <code>docs/</code>. Para cambiar textos y preguntas, edita <code>comun/contenido.js</code>.</p>
+    <p>Fuentes de los planes gratuitos (consultadas el 6 de octubre de 2026): <a href="https://render.com/docs/free">Render · plan gratuito</a>, <a href="https://supabase.com/pricing">Supabase · precios</a>. Los planes cambian: revísalos antes de publicar.</p>
+  </footer>
+</main>
+</body>
+</html>

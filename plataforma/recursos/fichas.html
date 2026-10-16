@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fichas · Guardianes de Usme</title>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Baloo+2:wght@600;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="recursos.css">
+</head>
+<body>
+  <div class="herramientas">
+    <p><b id="titulo">Fichas</b><br>Para descargar: toca el botón y, en la ventana de impresión, elige «Guardar como PDF».</p>
+    <button type="button" id="imprimir"><span aria-hidden="true">⬇️</span>&nbsp;Descargar en PDF</button>
+    <a href="../../index.html#panel">Volver al panel</a>
+  </div>
+  <main class="hojas" id="hojas"></main>
+
+  <script src="../../3-mapa-desde-arriba/dibujos.js"></script>
+  <script src="recursos.js"></script>
+  <script>GU_RECURSOS.fichas(new URLSearchParams(location.search).get('tipo') || 'fauna');</script>
+</body>
+</html>
