@@ -33,6 +33,13 @@ y la accesibilidad se resuelve una sola vez y en HTML real (no dentro del dibujo
 Todo debe abrir con doble clic (`file://`), sin servidor y sin internet: no cargar
 imágenes ni audios externos; los dibujos se generan con código.
 
+**Celular acostado.** Un mundo que deba jugarse en horizontal carga
+`<script src="../comun/horizontal.js"></script>` antes de los demás: en vertical tapa
+la pantalla con «Gira tu celular» y pausa el juego (`GU.pausado()` lo tiene en cuenta);
+en Android, al primer toque, pone pantalla completa y fija la orientación. Hoy lo usan
+la plataforma (`index.html`) y el mapa. Los estilos compactos para poca altura van en
+`@media (orientation: landscape) and (max-height: 500px)` de la página del mundo.
+
 ## API `window.GU`
 
 | Llamada | Para qué |

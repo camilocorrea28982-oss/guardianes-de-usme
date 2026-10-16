@@ -701,7 +701,8 @@
     },
     on(ev, f) { (oyentes[ev] = oyentes[ev] || []).push(f); },
 
-    pausado: () => !estado.empezado || estado.ocupado || !!estado.panel,
+    // gu-girar: el celular está en vertical y comun/horizontal.js pide girarlo
+    pausado: () => !estado.empezado || estado.ocupado || !!estado.panel || document.documentElement.classList.contains('gu-girar'),
     entrada,
     personaje: i => personajeDe(i),
     avatar: () => C.AVATARES.find(a => a.id === cfg.avatar) || C.AVATARES[0],

@@ -58,6 +58,25 @@
     @keyframes mj-sube { from { transform: translateY(10px); opacity: 0; } }
     html.gu-sin-movimiento .mj * { animation: none !important; }
     @media (max-width: 760px) { .mj-cuerpo { grid-template-columns: minmax(0, 1fr); } .mj { padding: 0; } .mj-caja { border-radius: 0; min-height: 100%; } .mj-retrato { width: 46px; height: 46px; font-size: 26px; } }
+    /* celular acostado: el dibujo se achica para caber de alto, con la libreta al lado */
+    @media (orientation: landscape) and (max-height: 500px) {
+      .mj { padding: 0; }
+      .mj-caja { border-radius: 0; min-height: 100%; gap: 6px; padding: 8px max(14px, env(safe-area-inset-right)) 10px max(14px, env(safe-area-inset-left)); }
+      .mj-contenido { gap: 6px; }
+      .mj-cab { gap: 8px; }
+      .mj-retrato { width: 34px; height: 34px; font-size: 19px; border-width: 2px; box-shadow: 0 0 0 2px var(--c); }
+      .mj h2 { font-size: 1.15em; }
+      .mj .mj-quien { display: none; }
+      .mj-texto { font-size: .95em; line-height: 1.35; min-height: 0; }
+      .mj-cuerpo { grid-template-columns: minmax(0, 1fr) 220px; gap: 10px; }
+      /* alto disponible para el dibujo = pantalla − título, instrucción y botones (~180px) */
+      .mj-cuerpo .mj-area { justify-self: center; width: min(100%, calc((100vh - 180px) * 800 / 480)); width: min(100%, calc((100dvh - 180px) * 800 / 480)); }
+      .mj-contenido > .mj-area { justify-self: center; width: min(100%, calc((100vh - 180px) * 1600 / 600)); width: min(100%, calc((100dvh - 180px) * 1600 / 600)); }
+      .mj-libreta { padding: 8px 10px; font-size: .85em; }
+      .mj-opciones .gu-btn { min-height: 64px; }
+      .mj-hallazgo { padding: 8px 12px; }
+      .mj-controles .gu-btn { min-height: 48px; padding: .35em 1em; }
+    }
   `;
   document.head.appendChild(css);
 
@@ -502,7 +521,7 @@
       // En pantallas angostas (celular vertical) el paisaje se muestra más alto que el espacio
       // y se corre de lado para que los binoculares queden en el centro.
       const area = c.querySelector('#mj-area');
-      const angosto = () => area.clientWidth < 700;
+      const angosto = () => area.clientWidth < 700 && window.innerHeight > window.innerWidth;
       function encuadrar() {
         if (!angosto()) { lienzo.style.width = ''; lienzo.style.transform = ''; area.style.height = ''; return; }
         const alto = Math.min(340, Math.round(window.innerHeight * 0.42));

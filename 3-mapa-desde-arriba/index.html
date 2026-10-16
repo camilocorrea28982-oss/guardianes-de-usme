@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Baloo+2:wght@600;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <link rel="stylesheet" href="../comun/estilos.css">
+  <link rel="manifest" href="../manifest.webmanifest">
   <style>
     /* Botón propio del mapa: «Ver todo el mapa», debajo de la barra de la capa común */
     .mapa-herramientas {
@@ -24,10 +25,48 @@
       .mapa-inicio-texto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
     }
     #mundo { background: #e3d4ad; }
+
+    /* Celular acostado: poca altura. Todo más compacto para que se vea el mapa,
+       y separado de los bordes por el notch (env(safe-area-inset-*)). */
+    @media (orientation: landscape) and (max-height: 500px) {
+      .gu { font-size: calc(16px * var(--gu-escala)); }
+      .gu-hud { padding: 6px max(12px, env(safe-area-inset-right)) 6px max(12px, env(safe-area-inset-left)); }
+      .gu-titulo-mini { display: none; }
+      .gu-hud .gu-btn-icono { --gu-tecla: 44px; font-size: 1em; }
+      .gu-hud-der { gap: 6px; }
+      .gu-progreso { gap: 3px; padding: 4px; }
+      .gu-progreso li { width: 30px; height: 30px; font-size: 16px; }
+      .gu-puntos { padding: .2em .7em; font-size: 1em; }
+      .gu-joystick { width: 120px; height: 120px; left: max(16px, calc(env(safe-area-inset-left) + 8px)); bottom: max(12px, env(safe-area-inset-bottom)); }
+      .gu-joystick-bola { width: 54px; height: 54px; margin: -27px; }
+      .gu-btn-avanzar { bottom: max(12px, env(safe-area-inset-bottom)); min-height: 60px; font-size: 1.1em; padding: .5em 1.4em; }
+      .gu-btn-hablar { right: max(16px, calc(env(safe-area-inset-right) + 8px)); bottom: max(12px, env(safe-area-inset-bottom)); max-width: 45%; font-size: .95em; min-height: 56px; }
+      .gu-btn-llevame { right: max(16px, calc(env(safe-area-inset-right) + 8px)); bottom: 80px; min-height: 48px; padding: .35em .9em; }
+      .mapa-herramientas { left: max(12px, env(safe-area-inset-left)); font-size: calc(15px * var(--gu-escala)); }
+      .mapa-herramientas .gu-btn { min-height: 44px; padding: .3em .8em; }
+      .mapa-inicio-texto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+      .gu-dialogo { width: calc(100% - 24px - env(safe-area-inset-left) - env(safe-area-inset-right)); max-width: 980px; }
+      /* pantallas de inicio, opciones, ayuda y final */
+      .gu-pantalla { padding: 8px max(12px, env(safe-area-inset-right)) 8px max(12px, env(safe-area-inset-left)); }
+      .gu-inicio-caja, .gu-panel-caja { padding: 14px 20px; border-radius: 20px; }
+      .gu-inicio-caja h1 { font-size: 2em; }
+      .gu-intro { font-size: 1em; margin-bottom: 10px; }
+      .gu-form { gap: 10px; }
+      .gu-campo > label, .gu-campo legend { margin-bottom: 4px; }
+      .gu-fila-opciones { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+      .gu-fila-colores { grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); }
+      .gu-tarjeta-cuerpo { padding: 6px 8px; }
+      .gu-tarjeta-emoji { font-size: 1.7em; }
+      .gu-muestra { width: 34px; height: 34px; }
+      .gu-panel-caja h2 { font-size: 1.4em; margin-bottom: 8px; }
+      .gu-op-grupos { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+      .gu-insignia { font-size: 56px; }
+    }
   </style>
 </head>
 <body>
   <main id="mundo" aria-label="Dibujo del parque. Todo lo importante se cuenta en texto y voz."></main>
+  <script src="../comun/horizontal.js"></script>
   <script src="../vendor/phaser.min.js"></script>
   <script src="../comun/contenido.js"></script>
   <script src="../comun/audio.js"></script>

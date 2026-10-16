@@ -1,0 +1,11 @@
+{
+  "name": "Guardianes de Usme",
+  "short_name": "Guardianes",
+  "lang": "es",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#f7efdc",
+  "theme_color": "#c0562f"
+}
