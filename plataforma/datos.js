@@ -29,7 +29,7 @@
     },
   ];
 
-  const APARIENCIA = { genero: 'nina', silla: false, piel: '#b27a52', peinado: 'trenzas', pelo: '#2a1c15', ruana: '#c0392b', pantalon: '#3e3a63', zapatos: '#4a2e1f' };
+  const APARIENCIA = { genero: 'nina', silla: false, piel: '#b27a52', peinado: 'trenzas', pelo: '#2a1c15', ruana: '#c0392b', prenda: 'falda', falda: '#7b3f8f', pantalon: '#3e3a63', zapatos: '#c0392b' };
 
   /* ---------- almacenamiento ---------- */
 

@@ -27,12 +27,34 @@
     genero: [['nina', 'Niña', '👧🏽'], ['nino', 'Niño', '👦🏽']],
     silla: [[false, 'Camino', '🚶🏽'], [true, 'Uso silla de ruedas', '🧑🏽‍🦽']],
     piel: [['#f1c9a5', 'Clara'], ['#d9a27a', 'Trigueña clara'], ['#b27a52', 'Trigueña'], ['#8a5536', 'Morena'], ['#5e3a24', 'Oscura']],
-    peinado: [['trenzas', 'Trenzas'], ['corto', 'Corto'], ['medio', 'Melena con balaca'], ['largo', 'Largo suelto'], ['crespo', 'Crespo'], ['mono', 'Moño']],
     pelo: [['#2a1c15', 'Negro'], ['#4a2e1f', 'Castaño oscuro'], ['#7a4a2a', 'Castaño claro'], ['#a8542a', 'Rojizo'], ['#d9b25a', 'Rubio'], ['#9a9690', 'Gris']],
     ruana: [['#c0392b', 'Roja'], ['#2e6da4', 'Azul'], ['#3c8d4f', 'Verde'], ['#e0a526', 'Amarilla'], ['#7b3f8f', 'Morada'], ['#d9772b', 'Naranja'], ['#6b4a32', 'Café'], ['#efe3c6', 'Crema']],
     pantalon: [['#3e3a63', 'Azul oscuro'], ['#2b2b2b', 'Negro'], ['#6b4a32', 'Café'], ['#5b6b3a', 'Verde oliva'], ['#7a7f88', 'Gris'], ['#8a3a5a', 'Vinotinto']],
-    zapatos: [['#4a2e1f', 'Café'], ['#1f1f1f', 'Negros'], ['#f2efe6', 'Blancos'], ['#c0392b', 'Rojos'], ['#2e6da4', 'Azules']],
+    falda: [['#7b3f8f', 'Morada'], ['#c76b8f', 'Rosada'], ['#8a3a5a', 'Vinotinto'], ['#2e6da4', 'Azul'], ['#3c8d4f', 'Verde'], ['#2b2b2b', 'Negra']],
+    prenda: [['falda', 'Falda', '👗'], ['pantalon', 'Pantalón', '👖']],
   };
+  // Peinados y zapatos de niña o de niño (el primero de cada lista es el que se pone al cambiar de género).
+  const POR_GENERO = {
+    nina: {
+      peinado: [['trenzas', 'Trenzas'], ['medio', 'Melena con balaca'], ['largo', 'Largo suelto'], ['cola', 'Cola de caballo'], ['mono', 'Moño'], ['crespo', 'Crespo']],
+      zapatos: [['#c0392b', 'Rojos'], ['#c76b8f', 'Rosados'], ['#7b3f8f', 'Morados'], ['#1f1f1f', 'Negros'], ['#4a2e1f', 'Café'], ['#f2efe6', 'Blancos']],
+    },
+    nino: {
+      peinado: [['corto', 'Corto'], ['lado', 'Peinado de lado'], ['rapado', 'Rapado'], ['rizos', 'Crespo corto'], ['gorra', 'Con gorra']],
+      zapatos: [['#4a2e1f', 'Café'], ['#1f1f1f', 'Negros'], ['#f2efe6', 'Blancos'], ['#2e6da4', 'Azules'], ['#c0392b', 'Rojos'], ['#3c8d4f', 'Verdes']],
+    },
+  };
+  const deGenero = (ap, campo) => POR_GENERO[ap.genero === 'nino' ? 'nino' : 'nina'][campo];
+  // Deja la apariencia coherente con el género: peinado y zapatos de su lista; el niño, con pantalón.
+  function ajustarAGenero(ap) {
+    ['peinado', 'zapatos'].forEach(campo => {
+      const lista = deGenero(ap, campo);
+      if (!lista.some(([v]) => String(v) === String(ap[campo]))) ap[campo] = lista[0][0];
+    });
+    if (ap.genero === 'nino') ap.prenda = 'pantalon';
+    else if (!ap.prenda) ap.prenda = 'falda';
+    return ap;
+  }
 
   /* ---------- dibujos ---------- */
 
@@ -215,7 +237,7 @@
   function vistaAvatar() {
     const j = G.jugadorActual();
     if (!j) return ir('jugador');
-    let ap = { ...G.APARIENCIA, ...j.apariencia };
+    let ap = ajustarAGenero({ ...G.APARIENCIA, ...j.apariencia });
     let dir = 'd';
     mostrar(`
       <h1 id="t-avatar">Crea tu avatar</h1>
@@ -230,11 +252,10 @@
           ${grupo('genero', 'Género', OPCIONES.genero, ap.genero)}
           ${grupo('silla', '¿Cómo te mueves?', OPCIONES.silla, ap.silla)}
           ${grupo('piel', 'Tono de piel', OPCIONES.piel, ap.piel, 'color')}
-          ${grupo('peinado', 'Tipo de cabello', OPCIONES.peinado, ap.peinado, 'peinado')}
+          <div id="segun-genero"></div>
           ${grupo('pelo', 'Color del cabello', OPCIONES.pelo, ap.pelo, 'color')}
           ${grupo('ruana', 'Color de la ruana', OPCIONES.ruana, ap.ruana, 'color')}
-          ${grupo('pantalon', 'Color del pantalón', OPCIONES.pantalon, ap.pantalon, 'color')}
-          ${grupo('zapatos', 'Color de los zapatos', OPCIONES.zapatos, ap.zapatos, 'color')}
+          <div id="segun-prenda"></div>
           <p class="ok" id="ok-avatar" role="status"></p>
           <div class="acciones">
             <button class="btn btn-principal btn-grande" type="submit" data-jugar><span aria-hidden="true">▶</span> Guardar y jugar</button>
@@ -242,20 +263,39 @@
           </div>
         </form>
       </div>`, 'Tu avatar');
+    const falda = () => ap.genero === 'nina' && ap.prenda === 'falda';
     const describir = () => {
       const nom = (lista, v) => (lista.find(x => String(x[0]) === String(v)) || [, ''])[1].toLowerCase();
-      return `${ap.genero === 'nina' ? 'Niña' : 'Niño'}${ap.silla ? ' en silla de ruedas' : ''}, piel ${nom(OPCIONES.piel, ap.piel)}, cabello ${nom(OPCIONES.peinado, ap.peinado)} ${nom(OPCIONES.pelo, ap.pelo)}, ruana ${nom(OPCIONES.ruana, ap.ruana)}, pantalón ${nom(OPCIONES.pantalon, ap.pantalon)} y zapatos ${nom(OPCIONES.zapatos, ap.zapatos)}.`;
+      const ropa = falda() ? `falda ${nom(OPCIONES.falda, ap.falda)}` : `pantalón ${nom(OPCIONES.pantalon, ap.pantalon)}`;
+      return `${ap.genero === 'nina' ? 'Niña' : 'Niño'}${ap.silla ? ' en silla de ruedas' : ''}, piel ${nom(OPCIONES.piel, ap.piel)}, cabello ${nom(deGenero(ap, 'peinado'), ap.peinado)} ${nom(OPCIONES.pelo, ap.pelo)}, ruana ${nom(OPCIONES.ruana, ap.ruana)}, ${ropa} y zapatos ${nom(deGenero(ap, 'zapatos'), ap.zapatos)}.`;
+    };
+    // Las opciones que dependen del género (peinados, falda o pantalón, zapatos) se arman de nuevo al cambiarlo.
+    const pintarOpciones = () => {
+      $('#segun-genero').innerHTML = grupo('peinado', 'Tipo de cabello', deGenero(ap, 'peinado'), ap.peinado, 'peinado');
+      $('#segun-prenda').innerHTML =
+        (ap.genero === 'nina' ? grupo('prenda', '¿Falda o pantalón?', OPCIONES.prenda, ap.prenda) : '')
+        + (falda() ? grupo('falda', 'Color de la falda', OPCIONES.falda, ap.falda, 'color') : grupo('pantalon', 'Color del pantalón', OPCIONES.pantalon, ap.pantalon, 'color'))
+        + grupo('zapatos', ap.genero === 'nina' ? 'Color de las baletas' : 'Color de los tenis', deGenero(ap, 'zapatos'), ap.zapatos, 'color');
     };
     const repintar = () => {
       pintarAvatar($('#previa'), ap, dir);
       $('#previa').setAttribute('aria-label', 'Tu avatar: ' + describir());
       $$('canvas[data-peinado]').forEach(c => pintarAvatar(c, { ...ap, silla: false, peinado: c.dataset.peinado }, 'd', [12, 0, 48, 48]));
     };
+    pintarOpciones();
     repintar();
     $('#f-avatar').addEventListener('change', e => {
       const n = e.target.name;
       if (!n) return;
       ap[n] = n === 'silla' ? e.target.value === 'true' : e.target.value;
+      if (n === 'genero') {
+        // al cambiar de género, el peinado y los zapatos pasan a los de la nueva lista
+        ap.peinado = deGenero(ap, 'peinado')[0][0];
+        ap.zapatos = deGenero(ap, 'zapatos')[0][0];
+        ap.prenda = ap.genero === 'nina' ? 'falda' : 'pantalon';
+        pintarOpciones();
+        anunciar(ap.genero === 'nina' ? 'Ahora ves peinados, falda y baletas de niña.' : 'Ahora ves peinados, pantalón y tenis de niño.');
+      } else if (n === 'prenda') pintarOpciones();
       $('#ok-avatar').textContent = '';
       repintar();
     });

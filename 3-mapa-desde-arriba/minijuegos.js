@@ -77,6 +77,34 @@
       .mj-hallazgo { padding: 8px 12px; }
       .mj-controles .gu-btn { min-height: 48px; padding: .35em 1em; }
     }
+    /* binoculares: el paisaje ocupa toda la pantalla; la explicación flota encima */
+    .mj-lleno { padding: 0; }
+    .mj-lleno .mj-caja { width: 100%; height: 100%; max-height: none; border-radius: 0; display: flex; flex-direction: column; overflow: hidden;
+      padding: 8px max(12px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); gap: 6px; }
+    .mj-lleno .mj-cab { gap: 8px; }
+    .mj-lleno .mj-retrato { width: 38px; height: 38px; font-size: 21px; border-width: 2px; box-shadow: 0 0 0 2px var(--c); }
+    .mj-lleno h2 { font-size: 1.15em; }
+    .mj-lleno .mj-quien { display: none; }
+    .mj-lleno .mj-contenido { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 6px; }
+    .mj-lleno .mj-texto { font-size: .95em; line-height: 1.3; min-height: 0; }
+    .mj-lleno .mj-area { flex: 1; min-height: 180px; width: 100% !important; }
+    .mj-lleno .mj-area canvas { position: absolute; left: 0; top: 0; max-width: none; transform-origin: 0 0; }
+    .mj-lleno .mj-controles .gu-btn { min-height: 48px; padding: .35em 1em; }
+    .mj-flota { position: absolute; inset: 10px; z-index: 2; display: flex; justify-content: center; align-items: flex-end; pointer-events: none; }
+    .mj-flota .mj-hallazgo { pointer-events: auto; width: min(640px, 100%); max-height: 100%; overflow: auto; background: var(--gu-panel); box-shadow: var(--gu-sombra); font-size: .92em; }
+    .mj-flota .gu-btn { min-height: 44px; padding: .3em 1em; margin-top: 4px; }
+    .mj [hidden] { display: none !important; }
+    /* celular acostado: los botones van en una columna a la derecha y el paisaje usa todo el alto */
+    @media (orientation: landscape) and (max-height: 560px) {
+      .mj-lleno .mj-contenido { display: grid; grid-template-columns: minmax(0, 1fr) 190px; grid-template-rows: auto minmax(0, 1fr); }
+      .mj-lleno .mj-texto { grid-column: 1 / -1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+      .mj-lleno .mj-area { grid-column: 1; grid-row: 2; min-height: 0; }
+      .mj-lleno .mj-controles { grid-column: 2; grid-row: 2; flex-direction: column; flex-wrap: nowrap; align-items: stretch; justify-content: flex-start; gap: 8px; overflow: auto; }
+      .mj-lleno .mj-cuenta { margin: 0; text-align: center; }
+      .mj-lleno .mj-controles .gu-btn { font-size: .85em; white-space: normal; line-height: 1.15; padding: .35em .6em; }
+    }
+    .mj-sensor { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 2; background: rgba(251,246,234,.95); color: #2b2118;
+      border-radius: 999px; padding: .3em 1em; font-weight: 800; pointer-events: none; }
   `;
   document.head.appendChild(css);
 
@@ -458,28 +486,35 @@
   function binoculares() {
     return new Promise(resolver => {
       const capa = abrirCapa({ titulo: 'Los binoculares de Rita', quien: 'Con Rita, la rana sabanera · La quebrada del bosque', emoji: '🐸', color: '#4f8a3c' });
+      capa.capa.classList.add('mj-lleno');
       const c = capa.contenido;
       c.innerHTML = `
         <p class="mj-texto" id="mj-instr" aria-live="polite"></p>
-        <div class="mj-area" id="mj-area" style="background:#1d1813"><canvas id="mj-vista" width="${PB.W}" height="${PB.H}" role="img" aria-label="Paisaje: a la izquierda el campo y el páramo; a la derecha la ciudad. Solo se ve lo que está dentro de los binoculares."></canvas></div>
+        <div class="mj-area" id="mj-area" style="background:#1d1813"><canvas id="mj-vista" width="${PB.W}" height="${PB.H}" role="img" aria-label="Paisaje: a la izquierda el campo y el páramo; a la derecha la ciudad. Solo se ve lo que está dentro de los binoculares."></canvas>
+          <div class="mj-sensor" id="mj-sensor" hidden><span aria-hidden="true">📱</span> Mueve el celular para mirar</div>
+          <div class="mj-flota" id="mj-hallazgo" aria-live="polite"></div></div>
         <div class="mj-controles">
           <span class="mj-cuenta" id="mj-cuenta"></span>
+          <button type="button" class="gu-btn" id="mj-celular" hidden aria-pressed="false"><span aria-hidden="true">📱</span> <span>Mover con el celular</span></button>
           <button type="button" class="gu-btn" id="mj-mover"><span aria-hidden="true">🔭</span> Mover los binoculares</button>
           <button type="button" class="gu-btn gu-btn-principal" id="mj-mirar"><span aria-hidden="true">🔍</span> ¿Qué ves aquí?</button>
-        </div>
-        <div id="mj-hallazgo" aria-live="polite"></div>`;
+        </div>`;
       const panorama = document.createElement('canvas');
       panorama.width = PB.W; panorama.height = PB.H;
       pintarPanorama(panorama.getContext('2d'));
       const lienzo = c.querySelector('#mj-vista');
       const ctx = lienzo.getContext('2d');
       const instr = c.querySelector('#mj-instr');
+      const hallazgo = c.querySelector('#mj-hallazgo');
       const encontrados = new Set();
       const LENTE = 130, SEP = 105;
       const vista = { x: 260, y: 400 };
-      let quieta = 0, ultimoT = performance.now(), activo = true;
+      let ancla = { ...vista }, quieta = 0, ultimoT = performance.now(), activo = true;
       const decir = t => { instr.textContent = t; V.decir(t); };
-      decir('Desde aquí se ve el campo y la ciudad. Mueve los binoculares con el dedo, el mouse o las flechas, y busca ocho cosas que le hacen daño a nuestros ecosistemas.');
+      const tactil = matchMedia('(pointer: coarse)').matches;
+      decir(tactil
+        ? 'Desde aquí se ve el campo y la ciudad. Mueve el celular o arrastra el dedo para mover los binoculares, y busca ocho cosas que le hacen daño a nuestros ecosistemas.'
+        : 'Desde aquí se ve el campo y la ciudad. Mueve los binoculares con el mouse o las flechas, y busca ocho cosas que le hacen daño a nuestros ecosistemas.');
 
       const dentro = p => Math.hypot(p.x - vista.x, (p.y - vista.y) * 1.2) < LENTE + SEP * 0.6;
       function dibujar() {
@@ -511,59 +546,144 @@
         encontrados.add(p.id);
         A.efecto('semilla');
         dibujar();
-        c.querySelector('#mj-hallazgo').innerHTML = `<div class="mj-hallazgo"><h3><span aria-hidden="true">${p.emoji}</span> ${esc(p.nombre)}</h3><p>${esc(p.texto)}</p><p><b>Qué podemos hacer:</b> ${esc(p.hacer)}</p></div>`;
+        // la explicación flota sobre el paisaje y se cierra con «Seguir buscando»
+        hallazgo.innerHTML = `<div class="mj-hallazgo"><h3><span aria-hidden="true">${p.emoji}</span> ${esc(p.nombre)}</h3><p>${esc(p.texto)}</p><p><b>Qué podemos hacer:</b> ${esc(p.hacer)}</p>
+          <button type="button" class="gu-btn" data-cerrar>Seguir buscando <span aria-hidden="true">🔭</span></button></div>`;
+        hallazgo.querySelector('[data-cerrar]').addEventListener('click', () => { hallazgo.innerHTML = ''; V.callar(); });
         V.decir(`¡Lo encontraste! ${p.nombre}. ${p.texto} Qué podemos hacer: ${p.hacer}`);
         if (encontrados.size === PROBLEMAS.length) setTimeout(final, quieto() ? 300 : 2200);
       };
       // lo que está en el centro de los binoculares (el más cercano)
       const enLaMira = () => PROBLEMAS.filter(p => !encontrados.has(p.id) && dentro(p)).sort((a, b) => Math.hypot(a.x - vista.x, a.y - vista.y) - Math.hypot(b.x - vista.x, b.y - vista.y))[0];
 
-      // En pantallas angostas (celular vertical) el paisaje se muestra más alto que el espacio
-      // y se corre de lado para que los binoculares queden en el centro.
+      // El paisaje llena todo el espacio y se ve de cerca (a lo sumo VISTA_ANCHO de ancho): así
+      // todo se ve más grande. El dibujo se corre para que los binoculares queden en el centro.
+      const VISTA_ANCHO = 1000;
       const area = c.querySelector('#mj-area');
-      const angosto = () => area.clientWidth < 700 && window.innerHeight > window.innerWidth;
+      let escala = 1;
       function encuadrar() {
-        if (!angosto()) { lienzo.style.width = ''; lienzo.style.transform = ''; area.style.height = ''; return; }
-        const alto = Math.min(340, Math.round(window.innerHeight * 0.42));
-        const ancho = alto * PB.W / PB.H;
-        area.style.height = alto + 'px';
-        lienzo.style.width = ancho + 'px';
-        const desplaza = Math.max(0, Math.min(ancho - area.clientWidth, vista.x * ancho / PB.W - area.clientWidth / 2));
-        lienzo.style.transform = `translateX(${-desplaza}px)`;
+        const aw = area.clientWidth, ah = area.clientHeight;
+        if (!aw || !ah) return;
+        escala = Math.max(ah / PB.H, aw / VISTA_ANCHO);
+        const w = PB.W * escala, h = PB.H * escala;
+        lienzo.style.width = w + 'px'; lienzo.style.height = h + 'px';
+        const tx = Math.max(0, Math.min(w - aw, vista.x * escala - aw / 2));
+        const ty = Math.max(0, Math.min(h - ah, vista.y * escala - ah / 2));
+        lienzo.style.transform = `translate(${-tx}px, ${-ty}px)`;
       }
       const mover = (x, y) => {
         vista.x = Math.max(SEP, Math.min(PB.W - SEP, x));
         vista.y = Math.max(LENTE * 0.6, Math.min(PB.H - LENTE * 0.4, y));
-        quieta = 0;
+        // el temblor de la mano no cuenta como moverse: solo un cambio grande reinicia la espera
+        if (Math.hypot(vista.x - ancla.x, vista.y - ancla.y) > 30) { quieta = 0; ancla = { ...vista }; }
         encuadrar();
         dibujar();
       };
       encuadrar();
       window.addEventListener('resize', encuadrar);
+      const medir = window.ResizeObserver ? new ResizeObserver(encuadrar) : null;
+      if (medir) medir.observe(area);
       const punto = e => { const b = lienzo.getBoundingClientRect(); return { x: (e.clientX - b.left) * PB.W / b.width, y: (e.clientY - b.top) * PB.H / b.height }; };
-      let arrastre = false, previo = null, recorrido = 0;
+
+      // Mover el celular, como unos binoculares de verdad: girarlo a los lados mueve a los lados;
+      // inclinarlo hacia arriba o abajo, arriba o abajo. Se calcula hacia dónde apunta la parte de
+      // atrás del celular, así funciona igual con el celular acostado o parado.
+      const sensor = { activo: false, base: null };
+      const POR_GRADO_X = 22, POR_GRADO_Y = 16; // puntos del paisaje por cada grado que se mueve el celular
+      const rad = Math.PI / 180;
+      function apunta(e) {
+        const a = e.alpha * rad, b = e.beta * rad, g = e.gamma * rad;
+        const cA = Math.cos(a), sA = Math.sin(a), cB = Math.cos(b), sB = Math.sin(b), cG = Math.cos(g), sG = Math.sin(g);
+        // eje que sale por detrás del celular, en coordenadas de la Tierra (x este, y norte, z arriba)
+        const vx = -(cA * sG + cG * sA * sB), vy = -(sA * sG - cA * cG * sB), vz = -(cB * cG);
+        return { giro: Math.atan2(vx, vy) / rad, alto: Math.asin(Math.max(-1, Math.min(1, vz))) / rad };
+      }
+
+      let arrastre = false, previo = null;
       lienzo.addEventListener('pointerdown', e => {
         arrastre = true; lienzo.setPointerCapture(e.pointerId);
-        previo = { x: e.clientX, y: e.clientY }; recorrido = 0;
+        previo = { x: e.clientX, y: e.clientY };
         const q = punto(e);
         // tocar algo que ya se ve dentro de los binoculares lo identifica
-        const tocado = PROBLEMAS.find(p => !encontrados.has(p.id) && dentro(p) && Math.hypot(p.x - q.x, p.y - q.y) < 70);
-        if (tocado) identificar(tocado); else if (!angosto()) mover(q.x, q.y);
+        const tocado = PROBLEMAS.find(p => !encontrados.has(p.id) && dentro(p) && Math.hypot(p.x - q.x, p.y - q.y) < 80);
+        if (tocado) identificar(tocado); else if (e.pointerType === 'mouse') mover(q.x, q.y);
       });
       lienzo.addEventListener('pointermove', e => {
-        if (angosto()) {
-          // en celular, arrastrar mueve los binoculares en la dirección del dedo
-          if (!arrastre) return;
-          const k = PB.W / lienzo.getBoundingClientRect().width;
-          const dx = (e.clientX - previo.x) * k, dy = (e.clientY - previo.y) * k;
-          recorrido += Math.abs(dx) + Math.abs(dy);
-          previo = { x: e.clientX, y: e.clientY };
-          mover(vista.x + dx, vista.y + dy);
-          return;
-        }
-        if (arrastre || e.pointerType === 'mouse') { const q = punto(e); mover(q.x, q.y); }
+        if (e.pointerType === 'mouse') { const q = punto(e); mover(q.x, q.y); return; }
+        // con el dedo, arrastrar mueve los binoculares en la dirección del dedo
+        if (!arrastre) return;
+        const dx = (e.clientX - previo.x) / escala, dy = (e.clientY - previo.y) / escala;
+        previo = { x: e.clientX, y: e.clientY };
+        mover(vista.x + dx, vista.y + dy);
+        sensor.base = null; // el celular sigue desde donde lo dejó el dedo
       });
       lienzo.addEventListener('pointerup', () => { arrastre = false; });
+      lienzo.addEventListener('pointercancel', () => { arrastre = false; });
+
+      const botonCelular = c.querySelector('#mj-celular');
+      const avisoSensor = c.querySelector('#mj-sensor');
+      let escuchando = false;
+      function alMoverCelular(e) {
+        if (e.alpha == null || e.beta == null || e.gamma == null) return;
+        if (!sensor.activo) activarSensor();
+        if (arrastre) return;
+        const o = apunta(e);
+        const base = sensor.base;
+        if (!base) { sensor.base = { ...o, x: vista.x, y: vista.y }; return; }
+        let dg = o.giro - base.giro;
+        if (dg > 180) dg -= 360;
+        if (dg < -180) dg += 360;
+        let tx = base.x + dg * POR_GRADO_X, ty = base.y - (o.alto - base.alto) * POR_GRADO_Y;
+        // en el borde, el punto de partida se corre: al devolverse, responde enseguida
+        const minX = SEP, maxX = PB.W - SEP, minY = LENTE * 0.6, maxY = PB.H - LENTE * 0.4;
+        if (tx < minX || tx > maxX) { tx = Math.max(minX, Math.min(maxX, tx)); base.giro = o.giro; base.x = tx; }
+        if (ty < minY || ty > maxY) { ty = Math.max(minY, Math.min(maxY, ty)); base.alto = o.alto; base.y = ty; }
+        // suavizado para que no tiemble
+        const k = quieto() ? 1 : 0.35;
+        mover(vista.x + (tx - vista.x) * k, vista.y + (ty - vista.y) * k);
+      }
+      function escuchar(si) {
+        if (si === escuchando) return;
+        escuchando = si;
+        if (si) window.addEventListener('deviceorientation', alMoverCelular);
+        else {
+          window.removeEventListener('deviceorientation', alMoverCelular);
+          sensor.activo = false; sensor.base = null; avisoSensor.hidden = true;
+          botonCelular.setAttribute('aria-pressed', 'false');
+          botonCelular.lastElementChild.textContent = 'Mover con el celular';
+        }
+      }
+      // el celular sí mandó datos de movimiento: se avisa y el botón sirve para apagarlo
+      function activarSensor() {
+        sensor.activo = true;
+        botonCelular.hidden = false;
+        botonCelular.setAttribute('aria-pressed', 'true');
+        botonCelular.lastElementChild.textContent = 'Mover con el dedo';
+        avisoSensor.hidden = false;
+        setTimeout(() => { avisoSensor.hidden = true; }, 4000);
+      }
+      const pidePermiso = !!(window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function');
+      // En Android funciona solo. En iPhone no llega nada hasta pedir permiso con un toque:
+      // si en un segundo no hay datos, aparece el botón «Mover con el celular».
+      if (tactil && window.DeviceOrientationEvent) {
+        escuchar(true);
+        if (pidePermiso) setTimeout(() => { if (activo && !sensor.activo) botonCelular.hidden = false; }, 1000);
+      }
+      botonCelular.addEventListener('click', async () => {
+        if (escuchando && sensor.activo) {
+          escuchar(false);
+          decir('Ahora mueves los binoculares con el dedo.');
+          return;
+        }
+        if (pidePermiso) {
+          let permiso = 'denied';
+          try { permiso = await DeviceOrientationEvent.requestPermission(); } catch (e) { /* sin permiso */ }
+          if (permiso !== 'granted') { decir('No se pudo usar el movimiento del celular. Mueve los binoculares con el dedo.'); botonCelular.hidden = true; return; }
+        }
+        escuchar(true);
+        decir('Mueve el celular hacia los lados, arriba o abajo para mirar con los binoculares.');
+      });
+
       // si los binoculares se quedan quietos sobre un problema, se identifica solo
       const vigilar = t => {
         if (!activo) return;
@@ -585,6 +705,7 @@
         if (!faltan.length) return;
         const p = faltan[turno++ % faltan.length];
         mover(p.x + 40, p.y + 10);
+        sensor.base = null;
         decir('Moviste los binoculares. Algo se ve por aquí… ¿qué será?');
       });
       c.querySelector('#mj-mirar').addEventListener('click', () => {
@@ -595,9 +716,12 @@
 
       function final() {
         activo = false;
+        escuchar(false);
+        if (medir) medir.disconnect();
         window.removeEventListener('keydown', teclas, true);
         window.removeEventListener('resize', encuadrar);
         V.callar();
+        capa.capa.classList.remove('mj-lleno');
         c.innerHTML = `
           <div class="mj-reflexion">
             <p class="mj-texto">¡Encontraste los ${PROBLEMAS.length} problemas!</p>

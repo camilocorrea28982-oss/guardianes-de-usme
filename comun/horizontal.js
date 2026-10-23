@@ -31,6 +31,11 @@
     .gu-girar-aviso button { font: inherit; font-weight: 700; min-height: 56px; padding: .55em 1.4em; border-radius: 999px; border: 3px solid #fff;
       background: #c0562f; color: #fff; cursor: pointer; }
     .gu-girar-aviso button:focus-visible { outline: 5px solid #00e5ff; outline-offset: 4px; }
+    .gu-girar-aviso [data-toque] { display: none; }
+    html.gu-girar-toque .gu-girar-aviso [data-toque] { display: block; }
+    html.gu-girar-toque .gu-girar-aviso [data-girar] { display: none; }
+    /* al imprimir (el papel es vertical) el aviso no sale */
+    @media print { .gu-girar-aviso { display: none !important; } html.gu-girar, html.gu-girar body { overflow: visible; } }
   `;
   document.head.appendChild(css);
 
@@ -43,10 +48,10 @@
   aviso.tabIndex = -1;
   aviso.innerHTML = `
     <div class="gu-girar-cel" aria-hidden="true"></div>
-    <h2 id="gu-girar-titulo">Gira tu celular</h2>
-    <p id="gu-girar-texto">Guardianes de Usme se juega con el celular acostado.</p>
+    <h2 id="gu-girar-titulo"><span data-girar>Gira tu celular</span><span data-toque>Toca la pantalla</span></h2>
+    <p id="gu-girar-texto"><span data-girar>Guardianes de Usme se juega con el celular acostado.</span><span data-toque>para seguir jugando con el celular acostado.</span></p>
     ${puedeFijar ? '<button type="button"><span aria-hidden="true">↻</span> Girar la pantalla</button>' : ''}
-    <p><small>Si no gira, revisa que la rotación automática del celular esté encendida.</small></p>`;
+    <p data-girar><small>Si no gira, revisa que la rotación automática del celular esté encendida.</small></p>`;
 
   // Pantalla completa + horizontal fija. Solo funciona tras un toque; si falla, no pasa nada.
   async function fijarHorizontal() {
@@ -60,18 +65,26 @@
     actualizar();
   }
 
-  // Al cambiar de página (plataforma → mapa) el navegador suelta la pantalla completa y el
-  // bloqueo. Si ya se fijó una vez en esta pestaña, no se vuelve a pedir girar: el primer
-  // toque de la página nueva lo fija otra vez. El aviso sale solo si ese intento falla.
+  // Al cambiar de página (plataforma → mapa), al imprimir o al compartir, el navegador suelta la
+  // pantalla completa y el bloqueo. Si ya se fijó una vez en esta pestaña, no se vuelve a pedir
+  // girar: la pantalla queda tapada con «Toca la pantalla» y ese toque la fija otra vez.
+  // Así nunca se ve nada en vertical. Si el intento falla, sale el aviso normal de girar.
   const RECUERDO = 'gu-horizontal-fijado';
   function recordar() { try { sessionStorage.setItem(RECUERDO, '1'); } catch (e) {} }
   function yaFijado() { try { return sessionStorage.getItem(RECUERDO) === '1'; } catch (e) { return false; } }
-  let esperandoToque = puedeFijar && yaFijado();
+  let esperandoToque = false;
+  function esperarToque() {
+    if (!puedeFijar || !yaFijado() || esperandoToque) return;
+    esperandoToque = true;
+    window.addEventListener('pointerup', fijarHorizontal, { once: true, capture: true });
+  }
+  let imprimiendo = false;
 
   // Mientras el aviso está, el resto de la página no recibe foco ni lector de pantalla.
   let apagados = [];
   function actualizar() {
-    const girar = vertical.matches && !esperandoToque;
+    raiz.classList.toggle('gu-girar-toque', esperandoToque);
+    const girar = vertical.matches && !imprimiendo;
     if (girar === raiz.classList.contains('gu-girar')) return;
     raiz.classList.toggle('gu-girar', girar);
     if (girar) {
@@ -89,11 +102,16 @@
     document.body.appendChild(aviso);
     aviso.querySelector('button')?.addEventListener('click', fijarHorizontal);
     vertical.addEventListener('change', actualizar);
-    actualizar();
     // el primer toque en la página ya pide pantalla completa y horizontal (en Android)
     if (puedeFijar && matchMedia('(pointer: coarse)').matches) {
-      window.addEventListener('pointerup', fijarHorizontal, { once: true, capture: true });
+      if (yaFijado()) esperarToque();
+      else window.addEventListener('pointerup', fijarHorizontal, { once: true, capture: true });
     }
+    actualizar();
+    // si se sale de la pantalla completa (imprimir, compartir, botón atrás), el siguiente toque la recupera
+    document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) { esperarToque(); actualizar(); } });
+    window.addEventListener('beforeprint', () => { imprimiendo = true; actualizar(); });
+    window.addEventListener('afterprint', () => { imprimiendo = false; if (!document.fullscreenElement) esperarToque(); actualizar(); });
   }
   if (document.body) montar();
   else document.addEventListener('DOMContentLoaded', montar);

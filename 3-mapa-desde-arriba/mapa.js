@@ -304,6 +304,13 @@
       d.textura.push({ x: r() * ANCHO, y: r() * ALTO, a: r(), b: r(), c: r() });
     }
 
+    // Ningún árbol puede tapar una semilla: la copa (130×150, con el tronco abajo) se pinta encima
+    // de lo que queda detrás, y una semilla escondida no se encuentra nunca (pasaba en la quebrada, con Rita).
+    d.arboles = d.arboles.filter(a => !ESTACIONES.some(e => {
+      const dx = Math.abs(a.x - e.semilla[0]), dy = a.y - e.semilla[1];
+      return dx < 65 * a.s + 26 && dy > -30 && dy < 142 * a.s + 26;
+    }));
+
     // obstáculos para caminar: troncos de árboles
     d.obstaculos = d.arboles.map(a => ({ x: a.x, y: a.y - 4, r: 15 * a.s + 4 }));
     d.obstaculos.push({ x: ARBOL_GRANDE.x, y: ARBOL_GRANDE.y - 6, r: 28 });

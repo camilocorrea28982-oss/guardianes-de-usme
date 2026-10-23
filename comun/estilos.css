@@ -255,10 +255,7 @@ html.gu-contraste .gu-total b { color: var(--gu-tinta-suave); }
   .gu-brindis { top: 66px; z-index: 2; font-size: .9em; }
 }
 
-/* ---------- diploma impreso ---------- */
-@media print {
-  html, body { overflow: visible; height: auto; background: #fff; }
-  #mundo, .gu-hud, .gu-acciones, .gu-dialogo, .gu-botones-inicio { display: none !important; }
-  .gu, .gu-pantalla { position: static; background: #fff; }
-  .gu-inicio-caja { box-shadow: none; border: 6px double #c0562f; }
-}
+/* ---------- diploma (se imprime y se comparte con comun/diploma.js) ---------- */
+.gu-diploma-previa { display: block; width: min(560px, 100%); aspect-ratio: 11 / 8.5; margin: 6px auto 12px; border-radius: 12px; border: 3px solid var(--gu-borde); background: #f3e6c8; box-shadow: var(--gu-sombra); }
+.gu-botones-diploma { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 6px; }
+.gu-final-caja .gu-nota-validar { margin: 4px 0 12px; }

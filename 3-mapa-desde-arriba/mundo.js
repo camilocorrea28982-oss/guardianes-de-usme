@@ -980,7 +980,7 @@
   // Se espera un momento a la fuente de los letreros (si no hay internet, se usa la del sistema).
   const fuente = document.fonts && document.fonts.load ? document.fonts.load('800 23px "Baloo 2"').catch(() => {}) : Promise.resolve();
   Promise.race([fuente, new Promise(r => setTimeout(r, 1500))]).then(() => {
-    new Phaser.Game({
+    const juego = new Phaser.Game({
       type: Phaser.AUTO,
       parent: 'mundo',
       backgroundColor: '#e3d4ad',
@@ -991,5 +991,19 @@
       banner: false,
       scene: EscenaMapa,
     });
+    // Al girar el celular o entrar y salir de pantalla completa, el navegador avisa el cambio de
+    // tamaño antes de terminar de acomodarse y el mapa quedaba mal repartido hasta recargar.
+    // Se vuelve a medir varias veces mientras se acomoda.
+    let relojes = [];
+    const remedir = () => {
+      relojes.forEach(clearTimeout);
+      relojes = [60, 250, 600, 1200].map(ms => setTimeout(() => { juego.scale.refresh(); ubicarHerramientas(); }, ms));
+    };
+    window.addEventListener('orientationchange', remedir);
+    if (screen.orientation) screen.orientation.addEventListener('change', remedir);
+    document.addEventListener('fullscreenchange', remedir);
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', remedir);
+    window.addEventListener('pageshow', remedir);
+    remedir();
   });
 })();

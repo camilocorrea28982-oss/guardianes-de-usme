@@ -87,6 +87,7 @@ textarea { min-height: 90px; resize: vertical; }
 .vista-previa canvas { width: 100%; max-width: 260px; aspect-ratio: 72 / 92; }
 .vista-previa .nombre { font-family: var(--titulo); font-size: 1.5rem; font-weight: 800; color: #2b2118; margin: 0; }
 .opciones-avatar { display: grid; gap: 16px; }
+#segun-genero, #segun-prenda { display: grid; gap: 16px; }
 fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
 legend { font-weight: 800; margin-bottom: 8px; padding: 0; }
 .fila { display: flex; flex-wrap: wrap; gap: 10px; }

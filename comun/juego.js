@@ -721,8 +721,16 @@
         </ul>
         <h2>Lo que aprendiste</h2>
         <ul class="gu-aprendido">${C.ESTACIONES.map(e => `<li>${esc(e[cfg.nivel].pregunta.acierto.replace(/^¡[^!]*!\s*/, ''))}</li>`).join('')}</ul>
-        <div class="gu-botones-inicio">
-          <button type="button" class="gu-btn gu-btn-secundario" data-local="imprimir"><span aria-hidden="true">🖨️</span> Imprimir mi diploma</button>
+        ${window.GU_DIPLOMA ? `
+        <h2>Tu diploma</h2>
+        <img class="gu-diploma-previa" alt="Tu diploma de guardián del territorio, con tu nombre y tus estrellas">
+        <div class="gu-botones-diploma">
+          <button type="button" class="gu-btn gu-btn-secundario" data-local="imprimir"><span aria-hidden="true">🖨️</span> Imprimir</button>
+          <button type="button" class="gu-btn gu-btn-secundario" data-local="pdf"><span aria-hidden="true">📄</span> ${GU_DIPLOMA.puedeCompartir ? 'Compartir en PDF' : 'Descargar en PDF'}</button>
+          <button type="button" class="gu-btn gu-btn-secundario" data-local="imagen"><span aria-hidden="true">🖼️</span> ${GU_DIPLOMA.puedeCompartir ? 'Compartir como imagen' : 'Descargar imagen'}</button>
+        </div>
+        ${GU_DIPLOMA.puedeCompartir ? '<p class="gu-nota-validar">Al compartir puedes elegir WhatsApp, correo u otra aplicación.</p>' : ''}` : ''}
+        <div class="gu-botones-inicio" style="justify-content:center">
           <button type="button" class="gu-btn gu-btn-grande gu-btn-principal" data-local="otra"><span aria-hidden="true">🔁</span> Jugar otra vez</button>
         </div>
       </div>`;
@@ -731,8 +739,38 @@
     $('#gu-acciones').hidden = true;
     $('#gu-final-titulo').focus();
     $('[data-local="otra"]', p).onclick = () => location.reload();
-    $('[data-local="imprimir"]', p).onclick = () => window.print();
+    if (window.GU_DIPLOMA) {
+      let lienzo = null;
+      const diploma = () => lienzo || (lienzo = GU_DIPLOMA.dibujar(datosDiploma(total, max)));
+      // se dibuja un instante después, para que la pantalla final aparezca sin esperar
+      setTimeout(() => { $('.gu-diploma-previa', p).src = diploma().toDataURL('image/jpeg', 0.8); }, 120);
+      $('[data-local="imprimir"]', p).onclick = () => GU_DIPLOMA.imprimir(diploma());
+      ['pdf', 'imagen'].forEach(f => {
+        $(`[data-local="${f}"]`, p).onclick = async () => {
+          V.callar();
+          const r = await GU_DIPLOMA.compartir(diploma(), f);
+          if (r === 'descargado') anunciar(f === 'pdf' ? 'Tu diploma en PDF quedó en tus descargas.' : 'La imagen de tu diploma quedó en tus descargas.');
+        };
+      });
+    }
     V.decir(`¡Lo lograste${cfg.nombre ? ', ' + cfg.nombre : ''}! ${frase} Ganaste ${total} de ${max} estrellas.`);
+  }
+
+  // Lo que lleva el diploma. El avatar sale del perfil de la plataforma (si el jugador entró por ahí)
+  // o del personaje elegido en la pantalla de inicio.
+  function datosDiploma(total, max) {
+    const perfil = window.GU_DATOS && window.GU_DATOS.jugadorActual ? window.GU_DATOS.jugadorActual() : null;
+    const ap = perfil && perfil.apariencia ? perfil.apariencia : null;
+    const tipo = ap ? (ap.silla ? 'silla' : ap.genero || 'nina') : cfg.avatar;
+    const color = ap && ap.ruana ? ap.ruana : (C.RUANAS.find(r => r.id === cfg.ruana) || C.RUANAS[0]).color;
+    return {
+      nombre: cfg.nombre,
+      guardiana: ap ? ap.genero === 'nina' : cfg.avatar === 'nina',
+      puntos: total, maximo: max,
+      semillas: estado.semillas.size, totalSemillas: C.ESTACIONES.length,
+      juego: 'Recorriendo los pasos de los ancestros',
+      avatar: { tipo, color, ap },
+    };
   }
 
   /* ---------- API para los mundos ---------- */

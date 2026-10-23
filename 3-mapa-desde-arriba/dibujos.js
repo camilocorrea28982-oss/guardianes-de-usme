@@ -174,24 +174,45 @@
   }
 
   // Cabeza de frente ('d'), de espaldas ('u') o de lado ('s').
-  // peinado: 'trenzas' | 'corto' | 'medio' | 'largo' | 'crespo' | 'mono'
+  // peinado de niña: 'trenzas' | 'medio' | 'largo' | 'mono' | 'crespo' | 'cola'
+  // peinado de niño: 'corto' | 'rapado' | 'lado' | 'rizos' | 'gorra'
+  // adorno: cinta o balaca (niña) o color de la gorra (niño)
   function bucles(ctx, cx, cy, desde, hasta, n, r, d) {
     for (let k = 0; k <= n; k++) {
       const a = desde + (hasta - desde) * (k / n);
       circulo(ctx, cx + Math.cos(a) * d, cy + Math.sin(a) * d * 0.95, r, k % 2 ? claro(PELO, 0.1) : PELO);
     }
   }
+  // gorra: copa redonda y visera (de frente, de espaldas o de lado)
+  function gorra(ctx, cx, cy, dir, color) {
+    const sombra = oscuro(color, 0.3);
+    if (dir === 's') {
+      elipse(ctx, cx + 15, cy - 5, 10, 3.2, sombra);
+      ctx.beginPath(); ctx.arc(cx, cy - 4, 15.2, Math.PI, TAU); ctx.closePath(); ctx.fillStyle = color; ctx.fill();
+      circulo(ctx, cx - 1, cy - 19, 2, sombra);
+      return;
+    }
+    if (dir === 'd') elipse(ctx, cx, cy - 5, 16, 5, sombra);
+    ctx.beginPath(); ctx.arc(cx, cy - (dir === 'u' ? 2 : 6), 15.2, Math.PI, TAU); ctx.closePath(); ctx.fillStyle = color; ctx.fill();
+    if (dir === 'u') rect(ctx, cx - 5, cy - 3, 10, 3, 1.5, sombra);
+    circulo(ctx, cx, cy - (dir === 'u' ? 17 : 21), 2, sombra);
+  }
   function cabeza(ctx, cx, cy, dir, peinado, adorno) {
+    // rapado: el pelo se ve corto, casi del color de la piel
+    const capa = peinado === 'rapado' ? mezclar(PELO, PIEL, 0.35) : PELO;
     if (dir === 'u') {
       if (peinado === 'crespo') bucles(ctx, cx, cy - 1, 0, TAU, 12, 7.5, 15);
+      if (peinado === 'rizos') bucles(ctx, cx, cy - 1, 0, TAU, 12, 5.5, 13);
       circulo(ctx, cx, cy, 14, PIEL);
-      elipse(ctx, cx, cy - 1, 14.6, 14, PELO);
+      elipse(ctx, cx, cy - 1, 14.6, 14, capa);
       if (peinado === 'medio') elipse(ctx, cx, cy + 6, 15, 9, PELO);
       if (peinado === 'largo') rect(ctx, cx - 15, cy, 30, 30, 10, PELO);
       if (peinado === 'trenzas') { trenza(ctx, cx - 6, cy + 9, cx - 8, cy + 30, adorno); trenza(ctx, cx + 6, cy + 9, cx + 8, cy + 30, adorno); }
       if (peinado === 'mono') { circulo(ctx, cx, cy - 13, 7, PELO); ctx.beginPath(); ctx.arc(cx, cy - 8, 4, Math.PI, TAU); ctx.lineWidth = 2.4; ctx.strokeStyle = adorno; ctx.stroke(); }
       if (peinado === 'medio') { ctx.beginPath(); ctx.arc(cx, cy - 1, 14.4, Math.PI * 1.05, Math.PI * 1.95); ctx.lineWidth = 3; ctx.strokeStyle = adorno; ctx.stroke(); }
-      elipse(ctx, cx - 4, cy - 7, 5, 3, 'rgba(255,255,255,.12)', -0.5);
+      if (peinado === 'cola') { elipse(ctx, cx, cy + 14, 6, 13, PELO); elipse(ctx, cx + 1.5, cy + 16, 2, 8, claro(PELO, 0.12)); circulo(ctx, cx, cy + 3, 3, adorno); }
+      if (peinado === 'gorra') gorra(ctx, cx, cy, 'u', adorno);
+      else elipse(ctx, cx - 4, cy - 7, 5, 3, 'rgba(255,255,255,.12)', -0.5);
       return;
     }
     if (dir === 's') {
@@ -199,15 +220,20 @@
       if (peinado === 'medio') elipse(ctx, cx - 5, cy + 4, 11, 12, PELO);
       if (peinado === 'largo') { elipse(ctx, cx - 5, cy + 4, 12, 13, PELO); rect(ctx, cx - 16, cy + 2, 16, 26, 8, PELO); }
       if (peinado === 'crespo') bucles(ctx, cx - 2, cy - 1, Math.PI * 0.55, Math.PI * 1.75, 8, 7.5, 15);
+      if (peinado === 'rizos') bucles(ctx, cx - 1, cy - 1, Math.PI * 0.7, Math.PI * 1.85, 8, 5.5, 13);
       if (peinado === 'mono') circulo(ctx, cx - 10, cy - 10, 6.5, PELO);
+      if (peinado === 'cola') elipse(ctx, cx - 17, cy + 7, 5.5, 13, PELO, 0.35);
       circulo(ctx, cx, cy, 14, PIEL);
       circulo(ctx, cx + 13.5, cy + 2, 2.6, PIEL); // nariz
       ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, 14.6, 0, TAU); ctx.clip();
       ctx.beginPath(); ctx.moveTo(cx + 15, cy - 6); ctx.quadraticCurveTo(cx + 4, cy - 18, cx - 16, cy - 10); ctx.lineTo(cx - 16, cy + 16); ctx.lineTo(cx - 5, cy + 14);
-      ctx.quadraticCurveTo(cx - 1, cy - 2, cx + 15, cy - 6); ctx.fillStyle = PELO; ctx.fill();
+      ctx.quadraticCurveTo(cx - 1, cy - 2, cx + 15, cy - 6); ctx.fillStyle = capa; ctx.fill();
+      if (peinado === 'lado') { ctx.beginPath(); ctx.moveTo(cx + 15, cy - 7); ctx.quadraticCurveTo(cx + 14, cy - 1, cx + 8, cy - 3); ctx.quadraticCurveTo(cx + 6, cy - 9, cx + 15, cy - 7); ctx.fillStyle = PELO; ctx.fill(); }
       ctx.restore();
       if (peinado === 'medio') { ctx.beginPath(); ctx.arc(cx, cy, 14.4, Math.PI * 1.2, Math.PI * 1.85); ctx.lineWidth = 3; ctx.strokeStyle = adorno; ctx.stroke(); }
       if (peinado === 'mono') circulo(ctx, cx - 8, cy - 9, 2.2, adorno);
+      if (peinado === 'cola') circulo(ctx, cx - 13, cy - 3, 2.6, adorno);
+      if (peinado === 'gorra') gorra(ctx, cx, cy, 's', adorno);
       elipse(ctx, cx + 7, cy + 1, 1.9, 2.4, OJO); circulo(ctx, cx + 7.6, cy, 0.7, '#fff');
       circulo(ctx, cx + 5, cy + 6, 2.4, 'rgba(232,120,100,.45)');
       ctx.beginPath(); ctx.moveTo(cx + 8, cy + 8.5); ctx.quadraticCurveTo(cx + 10.5, cy + 9.5, cx + 12, cy + 8); ctx.lineWidth = 1.3; ctx.strokeStyle = '#6a2c1c'; ctx.stroke();
@@ -219,18 +245,24 @@
     if (peinado === 'medio') elipse(ctx, cx, cy + 4, 16.5, 14, PELO);
     if (peinado === 'largo') { elipse(ctx, cx, cy + 3, 17, 15, PELO); rect(ctx, cx - 18, cy + 2, 36, 26, 10, PELO); }
     if (peinado === 'crespo') bucles(ctx, cx, cy - 1, Math.PI * 0.8, Math.PI * 2.2, 10, 7.5, 15.5);
+    if (peinado === 'rizos') bucles(ctx, cx, cy - 1, Math.PI * 0.95, Math.PI * 2.05, 8, 5.5, 13.5);
     if (peinado === 'mono') circulo(ctx, cx, cy - 15, 7, PELO);
+    if (peinado === 'cola') { elipse(ctx, cx + 17, cy + 6, 5.5, 12, PELO, -0.2); circulo(ctx, cx + 14, cy - 8, 6, PELO); }
     circulo(ctx, cx - 14, cy + 2, 3, PIEL_OSC); circulo(ctx, cx + 14, cy + 2, 3, PIEL_OSC);
     circulo(ctx, cx, cy, 14, PIEL);
     ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, 14.6, 0, TAU); ctx.clip();
     ctx.beginPath();
-    if (peinado === 'corto') { ctx.moveTo(cx - 16, cy + 1); ctx.quadraticCurveTo(cx - 14, cy - 18, cx, cy - 16); ctx.quadraticCurveTo(cx + 14, cy - 18, cx + 16, cy + 1); ctx.quadraticCurveTo(cx + 9, cy - 9, cx + 2, cy - 6); ctx.quadraticCurveTo(cx - 6, cy - 10, cx - 16, cy + 1); }
+    if (peinado === 'corto' || peinado === 'rapado' || peinado === 'gorra' || peinado === 'rizos') { ctx.moveTo(cx - 16, cy + 1); ctx.quadraticCurveTo(cx - 14, cy - 18, cx, cy - 16); ctx.quadraticCurveTo(cx + 14, cy - 18, cx + 16, cy + 1); ctx.quadraticCurveTo(cx + 9, cy - 9, cx + 2, cy - 6); ctx.quadraticCurveTo(cx - 6, cy - 10, cx - 16, cy + 1); }
+    else if (peinado === 'lado') { ctx.moveTo(cx - 16, cy + 1); ctx.quadraticCurveTo(cx - 15, cy - 18, cx, cy - 16); ctx.quadraticCurveTo(cx + 15, cy - 18, cx + 16, cy + 2); ctx.quadraticCurveTo(cx + 12, cy - 4, cx + 7, cy - 4); ctx.quadraticCurveTo(cx - 3, cy - 4, cx - 11, cy - 9); ctx.quadraticCurveTo(cx - 14, cy - 5, cx - 16, cy + 1); }
     else { ctx.moveTo(cx - 16, cy + 4); ctx.quadraticCurveTo(cx - 15, cy - 18, cx, cy - 16); ctx.quadraticCurveTo(cx + 15, cy - 18, cx + 16, cy + 4); ctx.quadraticCurveTo(cx + 10, cy - 7, cx, cy - 6); ctx.quadraticCurveTo(cx - 10, cy - 7, cx - 16, cy + 4); }
-    ctx.fillStyle = PELO; ctx.fill();
+    ctx.fillStyle = capa; ctx.fill();
+    if (peinado === 'lado') { ctx.beginPath(); ctx.moveTo(cx - 6, cy - 15); ctx.quadraticCurveTo(cx - 8, cy - 12, cx - 10, cy - 9); ctx.lineWidth = 1.2; ctx.strokeStyle = claro(PELO, 0.25); ctx.stroke(); }
     ctx.restore();
     if (peinado === 'medio') { ctx.beginPath(); ctx.arc(cx, cy, 14.6, Math.PI * 1.15, Math.PI * 1.85); ctx.lineWidth = 3; ctx.strokeStyle = adorno; ctx.stroke(); }
     if (peinado === 'trenzas') { circulo(ctx, cx - 11, cy - 9, 2.6, adorno); }
     if (peinado === 'mono') { ctx.beginPath(); ctx.arc(cx, cy - 10, 4.5, Math.PI * 1.1, Math.PI * 1.9); ctx.lineWidth = 2.4; ctx.strokeStyle = adorno; ctx.stroke(); }
+    if (peinado === 'cola') circulo(ctx, cx + 13, cy - 6, 2.6, adorno);
+    if (peinado === 'gorra') gorra(ctx, cx, cy, 'd', adorno);
     ojos(ctx, cx - 5, cx + 5, cy + 1);
     mejillas(ctx, cx - 8.5, cx + 8.5, cy + 6);
     sonrisa(ctx, cx, cy + 5, 3);
@@ -248,34 +280,63 @@
   // Caja 72×92; los pies tocan y = 88. dir: 'd' (de frente), 'u' (de espaldas), 's' (de lado, mirando a la derecha).
   // f: 0 quieto, 1 y 2 pasos. La apariencia (piel, cabello, pantalón, zapatos…) llega en `ap`.
 
-  const APARIENCIA_BASE = { genero: 'nina', silla: false, piel: '#b27a52', peinado: 'trenzas', pelo: '#2a1c15', ruana: '#c0392b', pantalon: '#3e3a63', zapatos: '#4a2e1f' };
+  // genero: 'nina' | 'nino'. prenda (solo niña): 'falda' | 'pantalon'. falda: color de la falda.
+  const APARIENCIA_BASE = { genero: 'nina', silla: false, piel: '#b27a52', peinado: 'trenzas', pelo: '#2a1c15', ruana: '#c0392b', prenda: 'falda', falda: '#7b3f8f', pantalon: '#3e3a63', zapatos: '#c0392b' };
   let AP = { ...APARIENCIA_BASE };
+  const conFalda = () => AP.genero === 'nina' && AP.prenda === 'falda';
+  // cinta de la niña, o gorra del niño (del color de la ruana, más oscuro)
+  const adornoDe = color => AP.genero === 'nina' ? '#e8577f' : oscuro(color, 0.25);
+
+  // Zapato visto desde arriba: baleta con correa (niña) o tenis con suela blanca (niño).
+  function zapato(ctx, x, y, rx, ry, color) {
+    if (AP.genero === 'nina') {
+      elipse(ctx, x, y, rx * 0.92, ry * 0.92, color);
+      ctx.beginPath(); ctx.moveTo(x - rx * 0.7, y - ry * 0.3); ctx.lineTo(x + rx * 0.7, y - ry * 0.3);
+      ctx.lineWidth = 1.3; ctx.strokeStyle = oscuro(color, 0.4); ctx.stroke();
+      circulo(ctx, x + rx * 0.55, y - ry * 0.3, 0.9, '#f3d98a');
+      return;
+    }
+    const claroZ = hexARgb(color).reduce((a, b) => a + b) > 600;
+    elipse(ctx, x, y + 0.8, rx + 0.5, ry + 0.3, claroZ ? '#cfc8b8' : '#f2efe6');
+    elipse(ctx, x, y - 0.4, rx * 0.95, ry * 0.85, color);
+    [-1.6, 0.4, 2.4].forEach(dx => circulo(ctx, x + dx, y - 0.8, 0.6, claroZ ? '#8d949c' : '#fff'));
+  }
 
   function avatarPersona(ctx, genero, dir, f, color) {
     const cx = 36;
-    const pantalon = AP.pantalon, zapato = AP.zapatos, peinado = AP.peinado;
-    const cinta = '#e8577f';
-    const falda = genero === 'nina' ? mezclar(color, '#7b3f8f', 0.65) : null;
+    const pantalon = AP.pantalon, peinado = AP.peinado;
+    const cinta = adornoDe(color);
+    const falda = conFalda() ? AP.falda : null;
+    const pierna = falda ? PIEL : pantalon;
     if (dir === 's') {
       const ang = f === 0 ? 0.08 : (f === 1 ? 0.42 : -0.42);
-      [[-ang, oscuro(pantalon, 0.25)], [ang, pantalon]].forEach(([a, c]) => {
+      [[-ang, falda ? PIEL_OSC : oscuro(pantalon, 0.25)], [ang, pierna]].forEach(([a, c]) => {
         ctx.save(); ctx.translate(cx, 62); ctx.rotate(-a);
         rect(ctx, -4, 0, 8, 21, 3, c);
-        elipse(ctx, 2.5, 22, 6, 3.4, zapato);
+        zapato(ctx, 2.5, 22, 6, 3.4, AP.zapatos);
         ctx.restore();
       });
-      if (falda) elipse(ctx, cx, 64, 12, 5, falda);
+      if (falda) { poligono(ctx, [[cx - 10, 60], [cx - 15, 75], [cx + 15, 75], [cx + 10, 60]], falda); linea(ctx, [[cx - 15, 75], [cx + 15, 75]], 1.4, oscuro(falda, 0.3)); }
       ruanaLado(ctx, cx, 34, 30, color);
       circulo(ctx, cx + 11, 62, 3.4, PIEL);
       cabeza(ctx, cx + 1, 21, 's', peinado, cinta);
       return;
     }
     const sube1 = f === 1 ? 3 : 0, sube2 = f === 2 ? 3 : 0;
-    rect(ctx, cx - 10, 60 - sube1, 8, 21, 3, pantalon);
-    rect(ctx, cx + 2, 60 - sube2, 8, 21, 3, pantalon);
-    elipse(ctx, cx - 6, 81 - sube1, 5.5, 3.5, zapato);
-    elipse(ctx, cx + 6, 81 - sube2, 5.5, 3.5, zapato);
-    if (falda) { ctx.beginPath(); ctx.moveTo(cx - 14, 60); ctx.lineTo(cx - 16, 69); ctx.quadraticCurveTo(cx, 72, cx + 16, 69); ctx.lineTo(cx + 14, 60); ctx.closePath(); ctx.fillStyle = falda; ctx.fill(); }
+    if (falda) {
+      rect(ctx, cx - 9, 62 - sube1, 6, 19, 3, PIEL);
+      rect(ctx, cx + 3, 62 - sube2, 6, 19, 3, PIEL);
+    } else {
+      rect(ctx, cx - 10, 60 - sube1, 8, 21, 3, pantalon);
+      rect(ctx, cx + 2, 60 - sube2, 8, 21, 3, pantalon);
+    }
+    zapato(ctx, cx - 6, 81 - sube1, 5.5, 3.5, AP.zapatos);
+    zapato(ctx, cx + 6, 81 - sube2, 5.5, 3.5, AP.zapatos);
+    if (falda) {
+      ctx.beginPath(); ctx.moveTo(cx - 13, 60); ctx.lineTo(cx - 19, 74); ctx.quadraticCurveTo(cx, 78, cx + 19, 74); ctx.lineTo(cx + 13, 60); ctx.closePath(); ctx.fillStyle = falda; ctx.fill();
+      ctx.strokeStyle = oscuro(falda, 0.25); ctx.lineWidth = 1.1;
+      [-8, 0, 8].forEach(dx => { ctx.beginPath(); ctx.moveTo(cx + dx * 0.7, 66); ctx.lineTo(cx + dx, 75); ctx.stroke(); });
+    }
     if (dir === 'u') {
       ruana(ctx, cx, 33, 24, 33, color, true);
       cabeza(ctx, cx, 21, 'u', peinado, cinta);
@@ -297,8 +358,11 @@
 
   function avatarSilla(ctx, dir, f, color) {
     const cx = 36;
-    const tela = '#2a4c7a', metal = '#b3bac2', pantalon = AP.pantalon, zapato = AP.zapatos;
-    const cinta = '#f2b134', peinado = AP.peinado;
+    const tela = '#2a4c7a', metal = '#b3bac2';
+    const falda = conFalda() ? AP.falda : null;
+    // con falda: la falda cubre los muslos y se ven las piernas
+    const muslo = falda || AP.pantalon, pierna = falda ? PIEL : AP.pantalon;
+    const cinta = AP.genero === 'nina' ? '#f2b134' : adornoDe(color), peinado = AP.peinado;
     if (dir === 's') {
       // respaldo y manija
       rect(ctx, cx - 17, 36, 6, 30, 2, tela);
@@ -306,9 +370,9 @@
       linea(ctx, [[cx - 20, 33], [cx - 25, 33]], 3.4, '#222');
       ruanaLado(ctx, cx - 1, 34, 27, color);
       // muslo, pierna y pie
-      rect(ctx, cx - 2, 57, 22, 9, 4, pantalon);
-      rect(ctx, cx + 13, 60, 8, 20, 3, pantalon);
-      elipse(ctx, cx + 21, 81, 6, 3.4, zapato);
+      rect(ctx, cx + 13, 60, 8, 20, 3, pierna);
+      rect(ctx, cx - 2, 57, falda ? 25 : 22, falda ? 11 : 9, 4, muslo);
+      zapato(ctx, cx + 21, 81, 6, 3.4, AP.zapatos);
       linea(ctx, [[cx + 10, 84], [cx + 26, 84]], 3, '#555b63');
       linea(ctx, [[cx + 10, 68], [cx + 16, 84]], 2, metal);
       cabeza(ctx, cx, 23, 's', peinado, cinta);
@@ -344,13 +408,19 @@
     // de frente
     linea(ctx, [[15, 64], [cx - 16, 62]], 2.4, metal); linea(ctx, [[57, 64], [cx + 16, 62]], 2.4, metal);
     rect(ctx, cx - 17, 58, 34, 10, 3, tela);
-    rect(ctx, cx - 12, 62, 10, 12, 3, oscuro(pantalon, 0.1));
-    rect(ctx, cx + 2, 62, 10, 12, 3, oscuro(pantalon, 0.1));
-    rect(ctx, cx - 12, 70, 10, 11, 3, pantalon);
-    rect(ctx, cx + 2, 70, 10, 11, 3, pantalon);
+    if (falda) {
+      rect(ctx, cx - 10, 70, 6, 11, 3, PIEL);
+      rect(ctx, cx + 4, 70, 6, 11, 3, PIEL);
+      rect(ctx, cx - 15, 60, 30, 14, 5, falda);
+    } else {
+      rect(ctx, cx - 12, 62, 10, 12, 3, oscuro(muslo, 0.1));
+      rect(ctx, cx + 2, 62, 10, 12, 3, oscuro(muslo, 0.1));
+      rect(ctx, cx - 12, 70, 10, 11, 3, pierna);
+      rect(ctx, cx + 2, 70, 10, 11, 3, pierna);
+    }
     linea(ctx, [[cx - 15, 70], [cx - 13, 84]], 2, metal); linea(ctx, [[cx + 15, 70], [cx + 13, 84]], 2, metal);
     rect(ctx, cx - 16, 81, 32, 5, 2, '#555b63');
-    elipse(ctx, cx - 7, 81, 5.5, 3.4, zapato); elipse(ctx, cx + 7, 81, 5.5, 3.4, zapato);
+    zapato(ctx, cx - 7, 81, 5.5, 3.4, AP.zapatos); zapato(ctx, cx + 7, 81, 5.5, 3.4, AP.zapatos);
     elipse(ctx, cx - 14, 88, 3, 2.4, '#33363d'); elipse(ctx, cx + 14, 88, 3, 2.4, '#33363d');
     ruana(ctx, cx, 36, 22, 27, color, false);
     circulo(ctx, 13, 60, 3.6, PIEL); circulo(ctx, 59, 60, 3.6, PIEL);
@@ -359,8 +429,8 @@
 
   // tipo: 'nina' | 'nino' | 'silla'. ap (opcional): apariencia elegida en el editor de avatar.
   function avatar(ctx, tipo, dir, f, color, ap) {
-    const base = tipo === 'silla' ? { ...APARIENCIA_BASE, genero: 'nino', peinado: 'medio', pantalon: '#4a4f7a' }
-      : tipo === 'nino' ? { ...APARIENCIA_BASE, genero: 'nino', peinado: 'corto', pantalon: '#3f5878' } : APARIENCIA_BASE;
+    const base = tipo === 'silla' ? { ...APARIENCIA_BASE, genero: 'nino', peinado: 'corto', pantalon: '#4a4f7a', zapatos: '#4a2e1f' }
+      : tipo === 'nino' ? { ...APARIENCIA_BASE, genero: 'nino', peinado: 'corto', pantalon: '#3f5878', zapatos: '#4a2e1f' } : APARIENCIA_BASE;
     AP = { ...base, ...(ap || {}) };
     PIEL = AP.piel; PIEL_OSC = oscuro(AP.piel, 0.18); PELO = AP.pelo;
     try {
